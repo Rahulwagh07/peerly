@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tailwind": {
+    "config": "web/tailwind.config.js",
+    "css": "web/app/global.css",
+    "baseColor": "slate",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@peerly/ui-components/components",
+    "utils": "@peerly/ui-components/utils"
+  }
+}

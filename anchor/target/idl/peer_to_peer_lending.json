@@ -1,0 +1,387 @@
+{
+  "address": "EcZfFVRqnLbue65qAwjpVXpgdseP4CH6rEdcVdHngTgQ",
+  "metadata": {
+    "name": "peer_to_peer_lending",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "fund_loan",
+      "discriminator": [
+        50,
+        221,
+        51,
+        13,
+        3,
+        142,
+        116,
+        215
+      ],
+      "accounts": [
+        {
+          "name": "lender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "borrower",
+          "writable": true
+        },
+        {
+          "name": "loan",
+          "writable": true
+        },
+        {
+          "name": "lending_pool",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "get_account_details",
+      "discriminator": [
+        213,
+        33,
+        222,
+        24,
+        61,
+        155,
+        49,
+        247
+      ],
+      "accounts": [
+        {
+          "name": "lending_pool"
+        }
+      ],
+      "args": [
+        {
+          "name": "account",
+          "type": "pubkey"
+        }
+      ],
+      "returns": {
+        "defined": {
+          "name": "AccountDetails"
+        }
+      }
+    },
+    {
+      "name": "get_all_loans",
+      "discriminator": [
+        31,
+        124,
+        215,
+        197,
+        39,
+        169,
+        52,
+        79
+      ],
+      "accounts": [
+        {
+          "name": "lending_pool"
+        }
+      ],
+      "args": [],
+      "returns": {
+        "vec": {
+          "defined": {
+            "name": "Loan"
+          }
+        }
+      }
+    },
+    {
+      "name": "repay_loan",
+      "discriminator": [
+        224,
+        93,
+        144,
+        77,
+        61,
+        17,
+        137,
+        54
+      ],
+      "accounts": [
+        {
+          "name": "borrower",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lender",
+          "writable": true
+        },
+        {
+          "name": "loan",
+          "writable": true
+        },
+        {
+          "name": "lending_pool",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "request_loan",
+      "discriminator": [
+        120,
+        2,
+        7,
+        7,
+        1,
+        219,
+        235,
+        187
+      ],
+      "accounts": [
+        {
+          "name": "borrower",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "loan",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "lending_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  101,
+                  110,
+                  100,
+                  105,
+                  110,
+                  103,
+                  95,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "mortgage_cid",
+          "type": "string"
+        },
+        {
+          "name": "due_date",
+          "type": "i64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Loan",
+      "discriminator": [
+        20,
+        195,
+        70,
+        117,
+        165,
+        227,
+        182,
+        1
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidAmount",
+      "msg": "Invalid loan amount"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidDueDate",
+      "msg": "Invalid due date"
+    },
+    {
+      "code": 6002,
+      "name": "LenderCannotBorrow",
+      "msg": "Lender cannot borrow"
+    },
+    {
+      "code": 6003,
+      "name": "BorrowerCannotLend",
+      "msg": "Borrower cannot lend"
+    },
+    {
+      "code": 6004,
+      "name": "LoanNotFundable",
+      "msg": "Loan is not in a fundable state"
+    },
+    {
+      "code": 6005,
+      "name": "LoanNotRepayable",
+      "msg": "Loan is not in a repayable state"
+    },
+    {
+      "code": 6006,
+      "name": "UnauthorizedBorrower",
+      "msg": "Unauthorized borrower"
+    },
+    {
+      "code": 6007,
+      "name": "LoanNotDefaulted",
+      "msg": "Loan is not defaulted"
+    },
+    {
+      "code": 6008,
+      "name": "LoanNotOverdue",
+      "msg": "Loan is not overdue"
+    }
+  ],
+  "types": [
+    {
+      "name": "AccountDetails",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account_type",
+            "type": {
+              "defined": {
+                "name": "AccountType"
+              }
+            }
+          },
+          {
+            "name": "loans",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Loan"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AccountType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "Lender"
+          },
+          {
+            "name": "Borrower"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Loan",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "borrower",
+            "type": "pubkey"
+          },
+          {
+            "name": "lender",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "mortgage_cid",
+            "type": "string"
+          },
+          {
+            "name": "due_date",
+            "type": "i64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "LoanStatus"
+              }
+            }
+          },
+          {
+            "name": "request_date",
+            "type": "i64"
+          },
+          {
+            "name": "fund_date",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "repay_date",
+            "type": {
+              "option": "i64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LoanStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Requested"
+          },
+          {
+            "name": "Funded"
+          },
+          {
+            "name": "Closed"
+          },
+          {
+            "name": "Defaulted"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@peerly/ui-components": ["ui-components/src/index.ts"],
+      "@peerly/ui-components/*": ["ui-components/src/*"]
+    }
+  }
+}

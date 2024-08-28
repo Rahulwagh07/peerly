@@ -4,7 +4,7 @@ use anchor_lang::solana_program::system_instruction;
 use anchor_lang::solana_program::program::invoke;
 use anchor_lang::require;
 
-declare_id!("EcZfFVRqnLbue65qAwjpVXpgdseP4CH6rEdcVdHngTgQ");
+declare_id!("24TJfVSRZbifpwYphPRoWfhmcGm7ZGm7SYjXqqaFhzCR");
 
 #[program]
 pub mod peer_to_peer_lending {
@@ -29,9 +29,10 @@ pub mod peer_to_peer_lending {
             ErrorCode::LenderCannotBorrow
         );
 
+        loan.address = loan.key();
         loan.borrower = *borrower.key;
         loan.amount = amount;
-        loan.mortgage_cid = mortgage_cid.clone();
+        loan.mortgage_cid = mortgage_cid;
         loan.due_date = due_date;
         loan.status = LoanStatus::Requested;
         loan.request_date = clock.unix_timestamp;
@@ -156,7 +157,9 @@ pub mod peer_to_peer_lending {
   }
 
   impl LendingPool {
-      pub const LEN: usize = 8 + 32 + 32 + 8 + 8;
+    pub const LEN: usize = 8 +  
+    4 + (32 + 1) * 100 +  
+    4 + Loan::LEN * 100;  
 
       pub fn get_account_type(&self, account: &Pubkey) -> AccountType {
           self.account_types
@@ -188,6 +191,8 @@ pub mod peer_to_peer_lending {
   #[account]
   #[derive(Default)]
   pub struct Loan {
+      /// CHECK: This is the lender's public key, set in the instruction logic
+      pub address: Pubkey,
       /// CHECK: This is the borrower's public key, verified in the instruction logic
       pub borrower: Pubkey,
       /// CHECK: This is the lender's public key, set in the instruction logic
@@ -202,7 +207,8 @@ pub mod peer_to_peer_lending {
   }
 
   impl Loan {
-      pub const LEN: usize = 32 + 32 + 8 + 200 + 8 + 1 + 8 + 9 + 9;
+    pub const LEN: usize = 8 + 32 +  32 +  32 +  
+    8 + 4 + 200 +  8 +  1 + 8 + 9 + 9;   
   }
 
   #[derive(AnchorSerialize, AnchorDeserialize)]
@@ -212,13 +218,14 @@ pub mod peer_to_peer_lending {
   }
 
   #[derive(Accounts)]
+  #[instruction(amount: u64, mortgage_cid: String, due_date: i64)]
   pub struct RequestLoan<'info> {
       #[account(mut)]
       pub borrower: Signer<'info>,
       #[account(
-          init,
-          payer = borrower,
-          space = 1024
+        init,
+        payer = borrower,
+        space = 1024
       )]
       pub loan: Account<'info, Loan>,
       #[account(

@@ -1,5 +1,5 @@
 {
-  "address": "EcZfFVRqnLbue65qAwjpVXpgdseP4CH6rEdcVdHngTgQ",
+  "address": "24TJfVSRZbifpwYphPRoWfhmcGm7ZGm7SYjXqqaFhzCR",
   "metadata": {
     "name": "peer_to_peer_lending",
     "version": "0.1.0",
@@ -316,6 +316,10 @@
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "address",
+            "type": "pubkey"
+          },
           {
             "name": "borrower",
             "type": "pubkey"

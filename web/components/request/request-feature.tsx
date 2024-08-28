@@ -51,7 +51,7 @@ export default function RequestLoanFeature() {
         [Buffer.from("lending_pool")],
         programId
       );
-       
+      console.log("lendingPoolPDA", lendingPoolPDA.toString())
       const transaction = await program.methods
         .requestLoan(amountBN, mortgageCID, new anchor.BN(dueDate))
         .accounts({
@@ -59,7 +59,7 @@ export default function RequestLoanFeature() {
           loan: loanAccountKeypair.publicKey,
           lendingPool: lendingPoolPDA,
           systemProgram: anchor.web3.SystemProgram.programId,
-        })
+        } as any)
         .signers([loanAccountKeypair])
         .rpc();
   

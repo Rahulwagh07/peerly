@@ -8,9 +8,14 @@ import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { getLendingProgram, getLendingProgramId } from '@peerly/anchor';
 import { useCluster } from '../cluster/cluster-data-access';
-import { useAnchorProvider, WalletButton } from '../solana/solana-provider';
+import { useAnchorProvider} from '../solana/solana-provider';
 import { useTransactionToast } from '../ui/ui-layout';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Label, Input, Button, Popover, PopoverContent, PopoverTrigger } from '@peerly/ui-components';
+import { 
+    Card, CardContent, CardDescription, CardFooter, 
+    CardHeader, CardTitle, Label, Input, Button, 
+    Popover, PopoverContent, PopoverTrigger 
+  }
+ from '@peerly/ui-components';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { Calendar } from '@peerly/ui-components';
@@ -20,13 +25,13 @@ import Link from 'next/link'
 
 export default function RequestLoanFeature() {
   const { connection } = useConnection();
-  const { publicKey, disconnect } = useWallet();
+  const { publicKey } = useWallet();
   const { cluster } = useCluster();
   const transactionToast = useTransactionToast();
   const provider = useAnchorProvider();
   const [amount, setAmount] = useState('');
   const [mortgageCID, setMortgageCID] = useState('');
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
  
   const getProgramAccount = useQuery({
     queryKey: ['get-program-account', { cluster }],
@@ -39,29 +44,14 @@ export default function RequestLoanFeature() {
   const requestLoan = async ({ amount, mortgageCID, dueDate }: { amount: number; mortgageCID: string; dueDate: number }) => {
     try {
       const lamportsAmount = Math.floor(amount * anchor.web3.LAMPORTS_PER_SOL);
-      const amountBN = new anchor.BN(lamportsAmount);
-      const programAccount = await connection.getAccountInfo(programId);
-      console.log("Program account exists:", !!programAccount);
-      console.log("Cluster:", cluster.network);
-      console.log("Program ID:", programId.toBase58());
-      console.log("Provider connection:", provider.connection.rpcEndpoint);
-      console.log("Wallet public key:", publicKey?.toBase58());
-      console.log("Program ID:", programId.toBase58());
-      console.log("Amount:", amountBN);
-      console.log("Mortgage CID:", mortgageCID);
-      console.log("Due Date:", new anchor.BN(dueDate));
+      const amountBN = new anchor.BN(lamportsAmount);      
       const loanAccountKeypair = Keypair.generate();
   
-      // Derive the lending pool PDA
       const [lendingPoolPDA] = await PublicKey.findProgramAddress(
         [Buffer.from("lending_pool")],
         programId
       );
-  
-      console.log("Lending Pool PDA:", lendingPoolPDA.toBase58());
-      console.log("ProgramId", programId.toBase58());
        
-      console.log("new anchor.BN(dueDate)", new anchor.BN(dueDate));
       const transaction = await program.methods
         .requestLoan(amountBN, mortgageCID, new anchor.BN(dueDate))
         .accounts({
@@ -77,13 +67,12 @@ export default function RequestLoanFeature() {
       transactionToast(transaction);
       toast.success('Loan request submitted successfully!');
       getProgramAccount.refetch();
-    } catch (error) {
+    } catch (error:any) {
       console.error('Failed to submit loan request:', error);
       toast.error(`Request loan failed: ${error.message}`);
     }
   };
   
-
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -108,7 +97,7 @@ export default function RequestLoanFeature() {
 
 
   return publicKey ? (
-    <div>
+    <Card className='p-4'>
       <CardHeader>
         <CardTitle>Request a Loan!</CardTitle>
         <CardDescription>
@@ -156,7 +145,7 @@ export default function RequestLoanFeature() {
             <Button variant="outline">Cancel</Button>
          </Link>
       </CardFooter>
-    </div>
+    </Card>
   ) : (
      <NotConnected/>
   );

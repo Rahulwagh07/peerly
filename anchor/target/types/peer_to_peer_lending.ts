@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/peer_to_peer_lending.json`.
  */
 export type PeerToPeerLending = {
-  "address": "EcZfFVRqnLbue65qAwjpVXpgdseP4CH6rEdcVdHngTgQ",
+  "address": "24TJfVSRZbifpwYphPRoWfhmcGm7ZGm7SYjXqqaFhzCR",
   "metadata": {
     "name": "peerToPeerLending",
     "version": "0.1.0",
@@ -322,6 +322,10 @@ export type PeerToPeerLending = {
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "address",
+            "type": "pubkey"
+          },
           {
             "name": "borrower",
             "type": "pubkey"

@@ -3,17 +3,10 @@
 import { WalletButton } from '../solana/solana-provider';
 import * as React from 'react';
 import { ReactNode, Suspense, useEffect, useRef } from 'react';
-
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-import { AccountChecker } from '../account/account-ui';
-import {
-  ClusterChecker,
-  ClusterUiSelect,
-  ExplorerLink,
-} from '../cluster/cluster-ui';
 import toast, { Toaster } from 'react-hot-toast';
+import { ExplorerLink } from '../cluster/cluster-ui';
 
 export function UiLayout({
   children,
@@ -46,12 +39,8 @@ export function UiLayout({
         </div>
         <div className="flex items-center justify-center gap-2">
           <WalletButton />
-          <ClusterUiSelect />
         </div>
       </div>
-      <ClusterChecker>
-        <AccountChecker />
-      </ClusterChecker>
       <div>
         <Suspense
           fallback={

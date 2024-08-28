@@ -1,9 +1,8 @@
 'use client';
 
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletButton } from '../solana/solana-provider';
-
 import { redirect } from 'next/navigation';
+import NotConnected from '../common/NotConnected';
 
 export default function AccountListFeature() {
   const { publicKey } = useWallet();
@@ -13,10 +12,6 @@ export default function AccountListFeature() {
   }
 
   return (
-    <div className="hero py-[64px]">
-      <div className="hero-content text-center">
-        <WalletButton />
-      </div>
-    </div>
+    <NotConnected/>
   );
 }

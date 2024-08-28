@@ -1,48 +1,28 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { useWallet, useConnection } from '@solana/wallet-adapter-react';
+import { useWallet} from '@solana/wallet-adapter-react';
 import { Cluster, PublicKey } from '@solana/web3.js';
 import toast from 'react-hot-toast';
 import { getLendingProgram, getLendingProgramId } from '@peerly/anchor';
 import { useCluster } from '../cluster/cluster-data-access';
-import { useAnchorProvider, WalletButton } from '../solana/solana-provider';
-import { useTransactionToast } from '../ui/ui-layout';
+import { useAnchorProvider} from '../solana/solana-provider';
 import * as anchor from '@project-serum/anchor';
-import { lamportsToSol, formatDate, formatStatus} from '../../lib/utils'
-import { useRouter } from 'next/navigation'
+import { lamportsToSol, formatStatus, formatDateFromBN} from '../../lib/utils'
 import FundLoanModal from './FundLoanModal'
 
 import {
   Table, TableBody, TableCell,TableHead,
   TableHeader,TableRow, Card, CardContent, CardDescription,
-  CardHeader, CardTitle,Button, Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter, Label,
+  CardHeader, CardTitle,Button, 
 } from '@peerly/ui-components';
 
 import NotConnected from '../common/NotConnected';
+import { Loan } from '@/lib/types';
 
-interface Loan {
-  borrower: string;
-  lender: string;
-  amount: number;  
-  mortgageCid: string;
-  dueDate: string;  
-  status: 'Requested' | 'Funded' | 'Closed' | 'Defaulted';
-  requestDate: string;  
-  fundDate: string | null;  
-  repayDate: string | null;  
-}
-
-export const  AllLoans = () => {
-  const { connection } = useConnection();
+export const  ShowAllLoansDetails = () => {
   const { publicKey } = useWallet();
   const { cluster } = useCluster();
-  const transactionToast = useTransactionToast();
   const provider = useAnchorProvider();
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,7 +50,6 @@ export const  AllLoans = () => {
         programId
       );
 
-      // Call the get_all_loans function
       const fetchedLoans = await program.methods
         .getAllLoans()
         .accounts({
@@ -79,19 +58,21 @@ export const  AllLoans = () => {
         .view();
 
       const loans: Loan[] = fetchedLoans.map((loan: any) => ({
+        address: loan.address.toBase58(),
         borrower: loan.borrower.toBase58(),
         lender: loan.lender.toBase58(),
         amount: lamportsToSol(loan.amount),
         mortgageCid: loan.mortgageCid,
-        dueDate: formatDate(new anchor.BN(loan.dueDate)),
+        dueDate: formatDateFromBN(new anchor.BN(loan.dueDate)),
         status: formatStatus(loan.status),
-        requestDate: formatDate(new anchor.BN(loan.requestDate)),
-        fundDate: loan.fundDate ? formatDate(loan.fundDate) : null,
-        repayDate: loan.repayDate ? formatDate(loan.repayDate) : null,
+        requestDate: formatDateFromBN(new anchor.BN(loan.requestDate)),
+        fundDate: loan.fundDate ? formatDateFromBN(loan.fundDate) : null,
+        repayDate: loan.repayDate ? formatDateFromBN(loan.repayDate) : null,
       }));
   
       setLoans(loans);
-    } catch (error) {
+       
+    } catch (error:any) {
       console.error('Failed to fetch loans:', error);
       setError(`Failed to fetch loans: ${error.message}`);
       toast.error(`Failed to fetch loans: ${error.message}`);
@@ -135,7 +116,7 @@ export const  AllLoans = () => {
                 <TableBody>
                   {loans.map((loan, index) => (
                     <TableRow key={index}>
-                      <TableCell>{loan.borrower}</TableCell>
+                      <TableCell>{loan.borrower.toString()}</TableCell>
                       <TableCell>{loan.amount}</TableCell>
                       <TableCell>{loan.mortgageCid}</TableCell>
                       <TableCell>{loan.dueDate}</TableCell>

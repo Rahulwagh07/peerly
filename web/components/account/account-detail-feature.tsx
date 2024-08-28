@@ -2,17 +2,14 @@
 
 import { PublicKey } from '@solana/web3.js';
 import { useMemo } from 'react';
-
 import { useParams } from 'next/navigation';
-
 import { ExplorerLink } from '../cluster/cluster-ui';
 import { AppHero, ellipsify } from '../ui/ui-layout';
 import {
   AccountBalance,
   AccountButtons,
-  AccountTokens,
-  AccountTransactions,
 } from './account-ui';
+import AccountTransactions from './account-transactions';
 
 export default function AccountDetailFeature() {
   const params = useParams();
@@ -43,14 +40,9 @@ export default function AccountDetailFeature() {
           </div>
         }
       >
-        <div className="my-4">
-          <AccountButtons address={address} />
-        </div>
+        <AccountButtons address={address} />
       </AppHero>
-      <div className="space-y-8">
-        <AccountTokens address={address} />
-        <AccountTransactions address={address} />
-      </div>
+      <AccountTransactions/>
     </div>
   );
 }

@@ -271,6 +271,11 @@ export type PeerToPeerLending = {
       "code": 6008,
       "name": "loanNotOverdue",
       "msg": "Loan is not overdue"
+    },
+    {
+      "code": 6009,
+      "name": "accountNotFound",
+      "msg": "Account not found in the lending pool"
     }
   ],
   "types": [

@@ -18,13 +18,13 @@ export function UiLayout({
   const pathname = usePathname();
   return (
     <div className="">
-      <div className="flex justify-between items-center align-baseline px-8  shadow-lg 
+      <div  className="flex justify-between items-center align-baseline px-8  shadow-lg 
      dark:bg-gray-900 border-b mb-4 p-2  dark:border-slate-800">
         <div className="flex-1">
           <Link className="btn btn-ghost normal-case text-xl" href="/">
             Peerly
           </Link>
-          <ul className="menu menu-horizontal px-1 space-x-2">
+          <ul className="menu menu-horizontal px-1  space-x-2">
             {links.map(({ label, path }) => (
               <li key={path}>
                 <Link
@@ -111,45 +111,7 @@ export function AppModal({
   );
 }
 
-export function AppHero({
-  children,
-  title,
-  subtitle,
-}: {
-  children?: ReactNode;
-  title: ReactNode;
-  subtitle: ReactNode;
-}) {
-  return (
-    <div className="hero py-[64px]">
-      <div className="hero-content text-center">
-        <div className="max-w-2xl">
-          {typeof title === 'string' ? (
-            <h1 className="text-5xl font-bold">{title}</h1>
-          ) : (
-            title
-          )}
-          {typeof subtitle === 'string' ? (
-            <p className="py-6">{subtitle}</p>
-          ) : (
-            subtitle
-          )}
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function ellipsify(str = '', len = 4) {
-  if (str.length > 30) {
-    return (
-      str.substring(0, len) + '..' + str.substring(str.length - len, str.length)
-    );
-  }
-  return str;
-}
-
+ 
 export function useTransactionToast() {
   return (signature: string) => {
     toast.success(

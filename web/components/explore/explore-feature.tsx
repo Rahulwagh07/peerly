@@ -2,8 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useWallet} from '@solana/wallet-adapter-react';
-import { Cluster, PublicKey } from '@solana/web3.js';
-import toast from 'react-hot-toast';
+import { Cluster,   PublicKey } from '@solana/web3.js';
 import { getLendingProgram, getLendingProgramId } from '@peerly/anchor';
 import { useCluster } from '../cluster/cluster-data-access';
 import { useAnchorProvider} from '../solana/solana-provider';
@@ -19,6 +18,8 @@ import {
 
 import NotConnected from '../common/NotConnected';
 import { Loan } from '@/lib/types';
+import Loader from '../common/Loader';
+import CustomError from '../common/CustomError';
 
 export const  ShowAllLoansDetails = () => {
   const { publicKey } = useWallet();
@@ -74,21 +75,31 @@ export const  ShowAllLoansDetails = () => {
        
     } catch (error:any) {
       console.error('Failed to fetch loans:', error);
-      setError(`Failed to fetch loans: ${error.message}`);
-      toast.error(`Failed to fetch loans: ${error.message}`);
+      setError(`You Don't have inup balance, Airdrop some devent SOL in your account.`);
     } finally {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     if (program && publicKey) {
       fetchAllLoans();
     }
-  }, []);
+  }, [publicKey]);
 
+  if(!publicKey){
+    return <NotConnected/>
+  }
+  if (loading) {
+    return <Loader/>;
+  }
+
+  if (error) {
+    return <CustomError error={error} address={publicKey}/>;
+  }
   
-  return publicKey ? (
+  return (
     <div className="container mx-auto p-4">
       <Card>
         <CardHeader>
@@ -139,8 +150,6 @@ export const  ShowAllLoansDetails = () => {
         </CardContent>
       </Card>
     </div>
-  ) : (
-     <NotConnected/>
   );
 }
 

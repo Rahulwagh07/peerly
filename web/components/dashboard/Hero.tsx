@@ -1,3 +1,4 @@
+
 import { Button } from "@peerly/ui-components";
 import Link from "next/link";
 
@@ -14,7 +15,7 @@ export default function Hero() {
       <div className="relative z-10">
         <div className="container py-10 lg:py-16">
           <div className="max-w-2xl text-center mx-auto">
-            <p className="text-2xl font-bold">PeerFund</p>
+            <p className="text-2xl font-bold">Peerly</p>
             <div className="mt-5 max-w-2xl">
               <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
                 Peer To Peer Lending Network
@@ -22,8 +23,8 @@ export default function Hero() {
             </div>
             <div className="mt-5 max-w-3xl">
               <p className="text-xl text-muted-foreground">
-              Join complete peer-to-peer
-              decentralized network for a new era of secure, transparent, and efficient financial Loans.
+                Join complete peer-to-peer
+                decentralized network for a new era of secure, transparent, and efficient financial Loans.
               </p>
             </div>
             <div className="mt-8 gap-3 flex justify-center">
@@ -38,6 +39,5 @@ export default function Hero() {
         </div>
       </div>
     </div>
-    
   );
 }

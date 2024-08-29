@@ -265,6 +265,11 @@
       "code": 6008,
       "name": "LoanNotOverdue",
       "msg": "Loan is not overdue"
+    },
+    {
+      "code": 6009,
+      "name": "AccountNotFound",
+      "msg": "Account not found in the lending pool"
     }
   ],
   "types": [

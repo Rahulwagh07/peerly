@@ -77,6 +77,7 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, onClose }) => {
     }
   };
 
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>

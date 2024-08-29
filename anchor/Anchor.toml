@@ -23,11 +23,13 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "../node_modules/.bin/nx run anchor:jest"
+ 
 
 [test]
-startup_wait = 5000
+startup_wait = 10000
 shutdown_wait = 2000
 upgradeable = false
+max_program_size = 1572864
 
 [test.validator]
 bind_address = "127.0.0.1"

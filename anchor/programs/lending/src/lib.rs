@@ -121,6 +121,10 @@ pub mod peer_to_peer_lending {
     pub fn get_account_details(ctx: Context<GetAccountDetails>, account: Pubkey) -> Result<AccountDetails> {
         let lending_pool = &ctx.accounts.lending_pool;
         let account_type = lending_pool.get_account_type(&account);
+
+        if matches!(account_type, AccountType::None) {
+          return Err(ErrorCode::AccountNotFound.into());
+        }
         
         let loans = lending_pool.loans.iter()
             .filter(|loan| loan.borrower == account || loan.lender == account)
@@ -225,13 +229,13 @@ pub mod peer_to_peer_lending {
       #[account(
         init,
         payer = borrower,
-        space = 1024
+        space = 10000
       )]
       pub loan: Account<'info, Loan>,
       #[account(
           init_if_needed,
           payer = borrower,
-          space = 1024,
+          space = 10000,
           seeds = [b"lending_pool"],
           bump
       )]
@@ -297,4 +301,6 @@ pub mod peer_to_peer_lending {
       LoanNotDefaulted,
       #[msg("Loan is not overdue")]
       LoanNotOverdue,
+      #[msg("Account not found in the lending pool")]
+      AccountNotFound,
   }

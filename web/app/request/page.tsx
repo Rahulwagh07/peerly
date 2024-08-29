@@ -2,11 +2,8 @@ import React from 'react'
 import RequestLoanFeature from '@/components/request/request-feature'
 
 function page() {
-  return (
-    <div className="flex items-center justify-center">
-      <RequestLoanFeature/>
-    </div>
-  )
+  
+  return <RequestLoanFeature/>;
 }
 
 export default page

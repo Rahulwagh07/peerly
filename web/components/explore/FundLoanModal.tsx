@@ -76,7 +76,7 @@ const FundLoanModal: React.FC<FundLoanModalProps> = ({ loan, onClose }) => {
       setIsLoading(false);
     }
   };
-
+ 
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>

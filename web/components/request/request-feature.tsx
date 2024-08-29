@@ -22,6 +22,7 @@ import { Calendar } from '@peerly/ui-components';
 import * as anchor from '@project-serum/anchor'
 import NotConnected from "../common/NotConnected"
 import Link from 'next/link'
+import { IoClose } from "react-icons/io5";
 
 export default function RequestLoanFeature() {
   const { connection } = useConnection();
@@ -73,12 +74,24 @@ export default function RequestLoanFeature() {
     }
   };
   
-
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!programId || !publicKey) {
       toast.error("Program ID or public key is missing.");
+      return;
+    }
+    if (!selectedDate) {
+      toast.error("Please select a date.");
+      return;
+    }
+
+    const dueDate: number = selectedDate.getTime();
+    const currentDate = new Date().getTime();
+
+    if (dueDate <= currentDate) {
+      toast.error("Please select a future date.");
       return;
     }
 
@@ -94,14 +107,17 @@ export default function RequestLoanFeature() {
       toast.error("Failed to submit loan request.");
     }
   };
-
-
+   
   return publicKey ? (
-    <Card className='p-4'>
+    <div className='flex items-center  justify-center mt-8'>
+      <Card className='p-4 relative'>
+        <Link href="/" >
+         <IoClose className='absolute text-2xl top-5 right-5 text-red-500'/>
+         </Link>
       <CardHeader>
         <CardTitle>Request a Loan!</CardTitle>
         <CardDescription>
-          Submit your loan application and connect directly with peers on our secure, blockchain-powered platform.
+          Submit your loan application and connect directly with Lenders on <br/>our secure, blockchain-powered platform.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -140,12 +156,8 @@ export default function RequestLoanFeature() {
           </div>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-between">
-         <Link href="/" >
-            <Button variant="outline">Cancel</Button>
-         </Link>
-      </CardFooter>
     </Card>
+    </div>
   ) : (
      <NotConnected/>
   );
@@ -165,7 +177,7 @@ function DatePicker({ onDateChange }: { onDateChange: (date: Date | undefined) =
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
-          className={`w-full justify-start text-left font-normal ${!date ? "text-muted-foreground" : ""}`}
+          className={`w-full justify-start py-5 text-left font-normal ${!date ? "text-muted-foreground" : ""}`}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? format(date, "PPP") : <span>Pick a due date</span>}

@@ -12,8 +12,8 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { getLendingProgram } from '@peerly/anchor';
 import { PublicKey } from '@solana/web3.js';
 import toast from 'react-hot-toast';
-import { formatDateFromBN, lamportsToSol } from '@/lib/utils';
-import { Loan } from '@/lib/types';
+import { formatDateFromBN, formatStatus, handleCustomError, lamportsToSol } from '@/lib/utils';
+import { AccountType, Loan } from '@/lib/types';
 import * as anchor from "@coral-xyz/anchor";
 
 interface RepayLoanModalProps {
@@ -21,14 +21,14 @@ interface RepayLoanModalProps {
   loanIndex: number;
   onClose: () => void;
   refreshLoans: () => void;
+  accountType: AccountType;
 }
 
-const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClose, refreshLoans }) => {
+const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClose, refreshLoans , accountType}) => {
   const [isLoading, setIsLoading] = useState(false);
   const provider = useAnchorProvider();
   const { publicKey, connected } = useWallet();
   const program = useMemo(() => getLendingProgram(provider), [provider]);
-
   const repayLoan = async () => {
     setIsLoading(true);
 
@@ -59,15 +59,13 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClos
         } as any)
         .transaction();
 
-      const signature = await provider.sendAndConfirm(tx);
-      console.log("Transaction signature:", signature);
-
+      await provider.sendAndConfirm(tx);
       toast.success('Loan repaid successfully');
       refreshLoans();
       onClose();
     } catch (error: any) {
       console.error('Error repaying loan:', error);
-      toast.error(`Failed to repay loan: ${error.message}`);
+      handleCustomError({error, customError:"Failed to Repay loan"});
     } finally {
       setIsLoading(false);
     }
@@ -77,9 +75,9 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClos
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Repay Loan</DialogTitle>
+          <DialogTitle>{accountType === "Lender" ? "Loan Details" : "Repay Loan"}</DialogTitle>
           <DialogDescription>
-            Check the details before repaying the loan.
+            {accountType === "Lender" ? `Loan funded by you on ${formatDateFromBN(new anchor.BN(loan.fundDate))}` : "Check the details before repaying the loan."}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -107,17 +105,13 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClos
               {formatDateFromBN(loan.dueDate)}
             </div>
           </div>
-          <div className="flex flex-col items-start gap-1">
-            <Label>Loan Index</Label>
-            <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              {loanIndex}
-            </div>
-          </div>
         </div>
         <DialogFooter>
           <div className="flex justify-end p-4">
             <Button onClick={onClose} variant="outline">Close</Button>
-            <Button onClick={repayLoan} className="ml-2" disabled={isLoading}>
+            <Button onClick={repayLoan} 
+              className={`ml-2 ${accountType === 'Lender' || formatStatus(loan.status) !== 'Funded' ? 'hidden' : ''}`}
+               disabled={isLoading}>
               {isLoading ? "Processing..." : "Repay Loan"}
             </Button>
           </div>

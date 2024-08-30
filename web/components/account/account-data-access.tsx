@@ -10,7 +10,7 @@ export function AccountBalance({ address }: { address: PublicKey }) {
   return (
     <div>
       <h6
-        className="text-xl font-semibold cursor-pointer"
+        className="text-xl cursor-pointer"
         onClick={() => query.refetch()}
       >
         {query.data ? <BalanceSol balance={query.data} /> : '0'}  <span className='text-red-400'>SOL</span>

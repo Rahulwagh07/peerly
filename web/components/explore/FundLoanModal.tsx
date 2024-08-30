@@ -18,6 +18,9 @@ import * as anchor from "@coral-xyz/anchor";
 import toast from 'react-hot-toast';
 import { useCluster } from '../cluster/cluster-data-access';
 import { Loan } from '@/lib/types';
+import { useRouter } from 'next/navigation';
+import { handleCustomError } from '@/lib/utils';
+import { useTransactionToast } from '../ui/ui-layout';
  
 
 interface FundLoanModalProps {
@@ -33,6 +36,8 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
   const { cluster } = useCluster();
   const program = getLendingProgram(provider);
   const programId = getLendingProgramId(cluster.network as Cluster);
+  const router = useRouter();
+  const transactionToast = useTransactionToast();
 
   const fundLoan = async () => {
     setIsLoading(true);
@@ -69,14 +74,17 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
         } as any)
         .rpc();
 
-      console.log("Transaction signature:", tx);
-      toast.success('Loan funded successfully');
-      onClose();
+        toast.success('Loan funded successfully');
+        transactionToast(tx);
+        router.push(`/account/${publicKey}`);
+        
     } catch (error: any) {
-      console.error('Error funding loan:', error);
-      toast.error(`Failed to fund loan: ${error.message}`);
+        setIsLoading(false);
+        onClose();
+        console.error('Error funding loan:', error);
+        handleCustomError({error, customError: "Failed to Fund loan. Make sure you have some devent sol"});
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
@@ -114,12 +122,19 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
               {loan.mortgageCid}
             </div>
           </div>
+          <div className="flex flex-col items-start gap-1">
+            <Label>Loan State</Label>
+            <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
+              {loan.status}
+            </div>
+          </div>
         </div>
         <DialogFooter>
-          <div className="flex justify-end p-4">
+          <div className="flex justify-end px-4">
             <Button onClick={onClose} variant="outline">Close</Button>
-            <Button onClick={fundLoan} className="ml-2" disabled={isLoading}>
-              {isLoading ? "Funding..." : "Give Loan"}
+            <Button onClick={fundLoan} className="ml-2" 
+            disabled={loan.status === "Closed" || loan.status === "Funded" || isLoading}>
+              {isLoading ? "Submitting" : "Give Loan"}
             </Button>
           </div>
         </DialogFooter>

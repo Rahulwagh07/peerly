@@ -5,8 +5,9 @@ import * as React from 'react';
 import { ReactNode, Suspense, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { ToastBar, Toaster } from 'react-hot-toast';
 import { ExplorerLink } from '../cluster/cluster-ui';
+import Loader from '../common/Loader';
 
 export function UiLayout({
   children,
@@ -44,14 +45,62 @@ export function UiLayout({
       <div>
         <Suspense
           fallback={
-            <div className="text-center my-32">
-              <span className="loading loading-spinner loading-lg"></span>
-            </div>
+             <Loader/>
           }
         >
           {children}
         </Suspense>
-        <Toaster position="bottom-right" />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            className: '',
+            style: {
+              backgroundColor: '#111827',  
+              color: '#fff',  
+              border: '1px solid #555',  
+              padding: '16px',
+            },
+            success: {
+              style: {
+                background: '#111827',  
+                color: '#fff',
+              },
+              iconTheme: {
+                primary: '#4CAF50',
+                secondary: '#ffffff',
+              },
+            },
+            error: {
+              style: {
+                background: '#111827',  
+                
+              },
+              iconTheme: {
+                primary: '#F44336',
+                secondary: '#ffffff',
+              },
+            },
+            
+          }}
+          containerStyle={{
+            top: 20,
+            left: 20,
+            bottom: 20,
+            right: 20,
+            
+          }}
+          gutter={16}  
+        >
+          {(t) => (
+            <ToastBar
+              toast={t}
+              style={{
+                ...t.style,
+                animation: t.visible ? 'custom-enter 1s ease' : 'custom-exit 1s ease',
+              }}
+            />
+          )}
+        </Toaster>
       </div>
     </div>
   );

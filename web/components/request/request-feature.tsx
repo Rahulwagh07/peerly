@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState, useMemo } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { Cluster, PublicKey } from '@solana/web3.js';
@@ -23,6 +23,9 @@ import * as anchor from '@project-serum/anchor'
 import NotConnected from "../common/NotConnected"
 import Link from 'next/link'
 import { IoClose } from "react-icons/io5";
+import { useRouter } from 'next/navigation';
+import { AccountType } from '@/lib/types';
+import { handleCustomError } from '@/lib/utils';
 
 export default function RequestLoanFeature() {
   const { connection } = useConnection();
@@ -33,11 +36,13 @@ export default function RequestLoanFeature() {
   const [amount, setAmount] = useState('');
   const [mortgageCID, setMortgageCID] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
- 
+  const [accountType, setAccountType] = useState<AccountType>('None');
+  const router = useRouter();
   const getProgramAccount = useQuery({
     queryKey: ['get-program-account', { cluster }],
     queryFn: () => connection.getParsedAccountInfo(programId),
   });
+  const [loading, setLoading] = useState(false);
 
   const programId = useMemo(() => getLendingProgramId(cluster.network as Cluster), [cluster]);
   const program = useMemo(() => getLendingProgram(provider), [provider]);
@@ -51,8 +56,6 @@ export default function RequestLoanFeature() {
         [Buffer.from("rahul"), provider.wallet.publicKey.toBuffer()],
         programId
       );
-  
-      console.log("UserAccountPDA", userAccountPDA.toString());
 
       const transaction = await program.methods
         .requestLoan(amountBN, mortgageCID, new anchor.BN(dueDate))
@@ -62,20 +65,22 @@ export default function RequestLoanFeature() {
           systemProgram: anchor.web3.SystemProgram.programId,
         }as any)
         .rpc();  
-  
-      console.log("Transaction signature:", transaction);
+
       transactionToast(transaction);
       toast.success("Loan request submitted successfully!");
       getProgramAccount.refetch();
+      router.push(`/account/${publicKey}`);
+      setLoading(false);
+      return;
     } catch (error: any) {
+      setLoading(false);
       console.error("Failed to submit loan request:", error);
-      toast.error(`Request loan failed: ${error.message}`);
+      handleCustomError({error, customError:"Failed to submit laon reuest"});
     }
   };
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!programId || !publicKey) {
       toast.error("Program ID or public key is missing.");
       return;
@@ -94,22 +99,57 @@ export default function RequestLoanFeature() {
     }
 
     try {
+      setLoading(true);
       const dueDate: number = selectedDate ? selectedDate.getTime() : 0;
+      if(accountType === "Lender"){
+        toast.success("Lender can not borrow loan");
+        setLoading(false);
+        return;
+      }
       await requestLoan({
         amount: parseFloat(amount),
         mortgageCID,
         dueDate,
       });
     } catch (error) {
+      setLoading(false);
       console.error("Failed to submit loan request:", error);
       toast.error("Failed to submit loan request.");
     }
   };
-   
+
+  const getAccountType = async() => {
+    try{
+      if(!publicKey){
+        return;
+      }
+      const [userAccountPDA] = await PublicKey.findProgramAddress(
+        [Buffer.from('rahul'), publicKey.toBuffer()],
+        programId
+      );
+  
+      const accountDetails = await program.account.userAccount.fetch(userAccountPDA);
+  
+      if (!accountDetails || !accountDetails.accountType) {
+        return;
+      }
+  
+      const accountType = accountDetails.accountType.borrower ? 'Borrower' : 
+                        accountDetails.accountType.lender ? 'Lender' : 'None';
+      setAccountType(accountType);
+    } catch(e){
+        console.log("Error getting account type:", e);
+    }
+   };
+
+  useEffect(() => {
+     getAccountType();
+  }, [publicKey]);
+
   return publicKey ? (
     <div className='flex items-center  justify-center mt-8'>
       <Card className='p-4 relative'>
-        <Link href="/" >
+        <Link href="/" className='hidden' >
          <IoClose className='absolute text-2xl top-5 right-5 text-red-500'/>
          </Link>
       <CardHeader>
@@ -150,7 +190,7 @@ export default function RequestLoanFeature() {
               <Label htmlFor="dueDate">Pick a Due Date</Label>
               <DatePicker onDateChange={setSelectedDate} />
             </div>
-            <Button type="submit">Request Loan</Button>
+            <Button type="submit">{loading ? "Submitting.." : "Request Loan"}</Button>
           </div>
         </form>
       </CardContent>
@@ -191,3 +231,5 @@ function DatePicker({ onDateChange }: { onDateChange: (date: Date | undefined) =
     </Popover>
   );
 }
+
+ 

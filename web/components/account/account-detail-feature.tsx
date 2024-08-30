@@ -4,20 +4,23 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { 
   Table, TableRow, Button, TableBody, TableCell, 
   TableHeader, Card, CardContent, CardDescription, 
-  CardHeader, CardTitle 
+  CardHeader, CardTitle, 
+  TableHead
 } from '@peerly/ui-components';
 import { redirect, useParams } from "next/navigation";
 import { Cluster, PublicKey } from '@solana/web3.js';
 import { useCluster } from '../cluster/cluster-data-access';
 import { useAnchorProvider } from '../solana/solana-provider';
 import { getLendingProgram, getLendingProgramId } from '@peerly/anchor';
-import { formatDateFromBN, lamportsToSol, formatStatus } from '@/lib/utils';
+import { formatDateFromBN, lamportsToSol, formatStatus, formatAddress } from '@/lib/utils';
 import RepayLoanModal from './RepayLoanModal';
 import { AccountType, Loan } from '@/lib/types';
-import { AccountBalance, useGetBalance } from './account-data-access';
+import { AccountBalance } from './account-data-access';
 import Loader from '../common/Loader';
 import useWalletConnection from '@/hooks/useWalletConnection';
 import CustomError from '../common/CustomError';
+import { SiSolana } from "react-icons/si";
+import toast from 'react-hot-toast';
 
 const AccountDetailFeature: React.FC = () => {
   const { cluster } = useCluster();
@@ -43,10 +46,7 @@ const AccountDetailFeature: React.FC = () => {
       console.log(`Invalid public key`, e);
     }
   }, [params]);
-
-  if(address){
-    var query = useGetBalance({address});
-  }
+ 
 
   const loadAccountDetails = async () => {
     if (!address) return;
@@ -68,7 +68,6 @@ const AccountDetailFeature: React.FC = () => {
         const accountType = accountDetails.accountType.borrower ? 'Borrower' : 
                             accountDetails.accountType.lender ? 'Lender' : 'None';
         setAccountType(accountType);
-        console.log("accountType", accountType);
 
         let processedLoans: Loan[] = [];
 
@@ -91,25 +90,25 @@ const AccountDetailFeature: React.FC = () => {
         }
 
         setLoans(processedLoans);
-        console.log("processedLoans", processedLoans);
 
     } catch (error: any) {
         console.error('Error fetching account details:', error);
-        if(query.data){
-          setError(`No account Transaction.`);
-        } else{
-          setError(`You Don't have inup balance, Airdrop some devent SOL in your account.`);
-        }
+        setError(`No account Transaction.`);
+         
     } finally {
         setLoading(false);
     }
 };
 
-
   useEffect(() => {
     loadAccountDetails();
   }, [address, walletConnected]);
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to Clipboard")
+  };
+  
   const handleViewDetails = (loan: Loan, index: number) => {
     setSelectedLoan(loan);
     setSelectedLoanIndex(index);
@@ -131,53 +130,94 @@ const AccountDetailFeature: React.FC = () => {
   if (error) {
     return <CustomError error={error} address={address}/>;
   }
-
+ 
   return (
-    <div className='container mx-auto p-4'>
-      <Card>
-        <CardHeader>
-          <CardTitle>Dashboard</CardTitle>
-          <CardTitle>Account Type: {accountType}</CardTitle>
-          <AccountBalance address={address}/>
-          <CardDescription>See Your Loans details here...</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableCell>Amount</TableCell>
-                <TableCell>MortgageCID</TableCell>
-                <TableCell>Due Date</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
+    <div className="container mx-auto">
+    <div>
+      <CardHeader className="flex items-center justify-center">
+        <CardTitle>Dashboard</CardTitle>
+        <CardDescription>See all your loan details that you are part of.</CardDescription>
+      </CardHeader>
+  
+      <div className="flex items-center justify-center mb-2">
+        <Card className="flex gap-4 p-3 px-16 items-center justify-center">
+          <CardDescription className="text-xl">
+            Account Type: <span className="text-sky-500">{accountType}</span>
+          </CardDescription>
+          <CardDescription className="flex gap-2 items-center justify-center">
+            <span className="text-xl">Bal:</span> 
+            <SiSolana className="text-blue-500 text-xl" />
+            <AccountBalance address={address} />
+          </CardDescription>
+        </Card>
+      </div>
+      
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className={`${accountType === "Borrower" ? "hidden" : ""}`}>
+                Borrower
+              </TableHead>
+              <TableHead className={`${accountType === "Lender" ? "hidden" : ""}`}>
+                Lender (Funded By)
+              </TableHead>
+              <TableHead>Amount (SOL)</TableHead>
+              <TableHead>Mortgage CID</TableHead>
+              <TableHead>Request Date</TableHead>
+              <TableHead>Repay Deadline</TableHead>
+              <TableHead>Repaid Date</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className={`${accountType === "Lender" ? "hidden" : ""}`}>
+                Actions
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          
+          <TableBody>
+            {loans.map((loan, index) => (
+              <TableRow key={index}>
+                <TableCell 
+                  onClick={() => handleCopy(loan.borrower.toString())}
+                  className={`cursor-pointer ${accountType === "Borrower" ? "hidden" : ""}`}>
+                  {formatAddress(loan.borrower.toString())}
+                </TableCell>
+                <TableCell 
+                  onClick={() => handleCopy(loan.lender.toString())}
+                  className={`cursor-pointer ${accountType === "Lender" ? "hidden" : ""}`}>
+                  {formatAddress(loan.lender.toString())}
+                </TableCell>
+                <TableCell>{lamportsToSol(loan.amount)} SOL</TableCell>
+                <TableCell 
+                  onClick={() => handleCopy(loan.mortgageCid.toString())}
+                  className="flex items-center cursor-pointer">
+                  {formatAddress(loan.mortgageCid.toString())}
+                </TableCell>
+                <TableCell>{loan.requestDate ? formatDateFromBN(loan.requestDate) : "---"}</TableCell>
+                <TableCell>{loan.dueDate ? formatDateFromBN(loan.dueDate) : "---"}</TableCell>
+                <TableCell>{loan.repayDate ? formatDateFromBN(loan.repayDate) : "---"}</TableCell>
+                <TableCell>{formatStatus(loan.status)}</TableCell>
+                <TableCell className={`${accountType === "Lender" ? "hidden" : ""}`}>
+                  <Button onClick={() => handleViewDetails(loan, index)}>View Details</Button>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loans.map((loan, index) => (
-                <TableRow key={index}>
-                  <TableCell>{lamportsToSol(loan.amount)} SOL</TableCell>
-                  <TableCell>{loan.mortgageCid}</TableCell>
-                  <TableCell>{formatDateFromBN(loan.dueDate)}</TableCell>
-                  <TableCell>{formatStatus(loan.status)}</TableCell>
-                  <TableCell>
-                    <Button onClick={() => handleViewDetails(loan, index)}>View Details</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-
-          {selectedLoan && selectedLoanIndex !== null && (
-            <RepayLoanModal
-              loan={selectedLoan}
-              loanIndex={selectedLoanIndex}
-              onClose={handleCloseModal}
-              refreshLoans={loadAccountDetails}
-            />
-          )}
-        </CardContent>
-      </Card>
+            ))}
+          </TableBody>
+        </Table>
+  
+        {selectedLoan && selectedLoanIndex !== null && (
+          <RepayLoanModal
+            loan={selectedLoan}
+            loanIndex={selectedLoanIndex}
+            onClose={handleCloseModal}
+            refreshLoans={loadAccountDetails}
+            accountType={accountType}
+          />
+        )}
+      </CardContent>
     </div>
+  </div>
+  
   );
 };
 

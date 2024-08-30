@@ -32,7 +32,7 @@ export default function Hero() {
                 <Button size={"lg"}> Request for Loan</Button>
             </Link>
             <Link href={"/explore"}>
-              <Button size={"lg"} variant={"outline"}> Explore</Button>
+              <Button size={"lg"} variant={"outline"} > Explore</Button>
             </Link>
             </div>
           </div>

@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/peer_to_peer_lending.json`.
  */
 export type PeerToPeerLending = {
-  "address": "24TJfVSRZbifpwYphPRoWfhmcGm7ZGm7SYjXqqaFhzCR",
+  "address": "65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W",
   "metadata": {
     "name": "peerToPeerLending",
     "version": "0.1.0",
@@ -36,19 +36,60 @@ export type PeerToPeerLending = {
           "writable": true
         },
         {
-          "name": "loan",
-          "writable": true
+          "name": "borrowerAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  104,
+                  117,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "borrower"
+              }
+            ]
+          }
         },
         {
-          "name": "lendingPool",
-          "writable": true
+          "name": "lenderAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  104,
+                  117,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lender"
+              }
+            ]
+          }
         },
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "loanIndex",
+          "type": "u8"
+        }
+      ]
     },
     {
       "name": "getAccountDetails",
@@ -64,44 +105,35 @@ export type PeerToPeerLending = {
       ],
       "accounts": [
         {
-          "name": "lendingPool"
-        }
-      ],
-      "args": [
+          "name": "user",
+          "signer": true
+        },
         {
-          "name": "account",
-          "type": "pubkey"
-        }
-      ],
-      "returns": {
-        "defined": {
-          "name": "accountDetails"
-        }
-      }
-    },
-    {
-      "name": "getAllLoans",
-      "discriminator": [
-        31,
-        124,
-        215,
-        197,
-        39,
-        169,
-        52,
-        79
-      ],
-      "accounts": [
-        {
-          "name": "lendingPool"
+          "name": "userAccount",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  104,
+                  117,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
         }
       ],
       "args": [],
       "returns": {
-        "vec": {
-          "defined": {
-            "name": "loan"
-          }
+        "defined": {
+          "name": "userAccount"
         }
       }
     },
@@ -128,19 +160,38 @@ export type PeerToPeerLending = {
           "writable": true
         },
         {
-          "name": "loan",
-          "writable": true
-        },
-        {
-          "name": "lendingPool",
-          "writable": true
+          "name": "borrowerAccount",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  104,
+                  117,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "borrower"
+              }
+            ]
+          }
         },
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "loanIndex",
+          "type": "u8"
+        }
+      ]
     },
     {
       "name": "requestLoan",
@@ -161,31 +212,23 @@ export type PeerToPeerLending = {
           "signer": true
         },
         {
-          "name": "loan",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "lendingPool",
+          "name": "userAccount",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  108,
-                  101,
-                  110,
-                  100,
-                  105,
-                  110,
-                  103,
-                  95,
-                  112,
-                  111,
-                  111,
+                  114,
+                  97,
+                  104,
+                  117,
                   108
                 ]
+              },
+              {
+                "kind": "account",
+                "path": "borrower"
               }
             ]
           }
@@ -213,16 +256,16 @@ export type PeerToPeerLending = {
   ],
   "accounts": [
     {
-      "name": "loan",
+      "name": "userAccount",
       "discriminator": [
-        20,
-        195,
-        70,
-        117,
-        165,
-        227,
-        182,
-        1
+        211,
+        33,
+        136,
+        16,
+        186,
+        110,
+        242,
+        127
       ]
     }
   ],
@@ -264,47 +307,16 @@ export type PeerToPeerLending = {
     },
     {
       "code": 6007,
-      "name": "loanNotDefaulted",
-      "msg": "Loan is not defaulted"
+      "name": "maxLoansReached",
+      "msg": "Maximum number of loans reached"
     },
     {
       "code": 6008,
-      "name": "loanNotOverdue",
-      "msg": "Loan is not overdue"
-    },
-    {
-      "code": 6009,
-      "name": "accountNotFound",
-      "msg": "Account not found in the lending pool"
+      "name": "invalidLoanIndex",
+      "msg": "Invalid loan index"
     }
   ],
   "types": [
-    {
-      "name": "accountDetails",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "accountType",
-            "type": {
-              "defined": {
-                "name": "accountType"
-              }
-            }
-          },
-          {
-            "name": "loans",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "loan"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
     {
       "name": "accountType",
       "type": {
@@ -327,10 +339,6 @@ export type PeerToPeerLending = {
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "address",
-            "type": "pubkey"
-          },
           {
             "name": "borrower",
             "type": "pubkey"
@@ -394,6 +402,32 @@ export type PeerToPeerLending = {
           },
           {
             "name": "defaulted"
+          }
+        ]
+      }
+    },
+    {
+      "name": "userAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "accountType",
+            "type": {
+              "defined": {
+                "name": "accountType"
+              }
+            }
+          },
+          {
+            "name": "loans",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "loan"
+                }
+              }
+            }
           }
         ]
       }

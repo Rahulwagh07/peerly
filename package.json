@@ -35,7 +35,6 @@
     "@tanstack/react-query-next-experimental": "5.52.1",
     "bn.js": "^5.2.1",
     "bs58": "6.0.0",
-    "buffer": "6.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "daisyui": "4.12.10",

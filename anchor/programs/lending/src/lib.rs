@@ -2,9 +2,8 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::system_instruction;
 use anchor_lang::solana_program::program::invoke;
-use anchor_lang::require;
 
-declare_id!("24TJfVSRZbifpwYphPRoWfhmcGm7ZGm7SYjXqqaFhzCR");
+declare_id!("65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W");
 
 #[program]
 pub mod peer_to_peer_lending {
@@ -16,52 +15,47 @@ pub mod peer_to_peer_lending {
         mortgage_cid: String,
         due_date: i64,
     ) -> Result<()> {
-        let loan = &mut ctx.accounts.loan;
-        let borrower = &ctx.accounts.borrower;
+        let user_account = &mut ctx.accounts.user_account;
         let clock = Clock::get()?;
 
         require!(amount > 0, ErrorCode::InvalidAmount);
         require!(due_date > clock.unix_timestamp, ErrorCode::InvalidDueDate);
+        require!(user_account.loans.len() < 3, ErrorCode::MaxLoansReached);
 
-        let borrower_account_type = ctx.accounts.lending_pool.get_account_type(&borrower.key());
-        require!(
-            borrower_account_type != AccountType::Lender,
-            ErrorCode::LenderCannotBorrow
-        );
+        let loan = Loan {
+            borrower: *ctx.accounts.borrower.key,
+            lender: Pubkey::default(),
+            amount,
+            mortgage_cid,
+            due_date,
+            status: LoanStatus::Requested,
+            request_date: clock.unix_timestamp,
+            fund_date: None,
+            repay_date: None,
+        };
 
-        loan.address = loan.key();
-        loan.borrower = *borrower.key;
-        loan.amount = amount;
-        loan.mortgage_cid = mortgage_cid;
-        loan.due_date = due_date;
-        loan.status = LoanStatus::Requested;
-        loan.request_date = clock.unix_timestamp;
-
-        ctx.accounts.lending_pool.set_account_type(&borrower.key(), AccountType::Borrower);
-        ctx.accounts.lending_pool.add_loan(loan);
+        user_account.loans.push(loan);
+        user_account.account_type = AccountType::Borrower;
 
         Ok(())
     }
 
-    pub fn fund_loan(ctx: Context<FundLoan>) -> Result<()> {
-        let loan = &mut ctx.accounts.loan;
-        let lender = &ctx.accounts.lender;
+    pub fn fund_loan(ctx: Context<FundLoan>, loan_index: u8) -> Result<()> {
+        let borrower_account = &mut ctx.accounts.borrower_account;
+        let lender_account = &mut ctx.accounts.lender_account;
         let clock = Clock::get()?;
 
+        require!(loan_index < borrower_account.loans.len() as u8, ErrorCode::InvalidLoanIndex);
+        let loan = &mut borrower_account.loans[loan_index as usize];
+
         require!(loan.status == LoanStatus::Requested, ErrorCode::LoanNotFundable);
+        require!(lender_account.account_type != AccountType::Borrower, ErrorCode::BorrowerCannotLend);
 
-        require!(
-            ctx.accounts.lending_pool.get_account_type(&lender.key()) != AccountType::Borrower,
-            ErrorCode::BorrowerCannotLend
-        );
-
-        loan.lender = *lender.key;
+        loan.lender = *ctx.accounts.lender.key;
         loan.status = LoanStatus::Funded;
         loan.fund_date = Some(clock.unix_timestamp);
 
-        ctx.accounts
-            .lending_pool
-            .set_account_type(&lender.key(), AccountType::Lender);
+        lender_account.account_type = AccountType::Lender;
 
         let ix = system_instruction::transfer(
             &ctx.accounts.lender.key,
@@ -78,18 +72,18 @@ pub mod peer_to_peer_lending {
             ],
         )?;
 
-        ctx.accounts.lending_pool.update_loan(loan);
-
         Ok(())
     }
 
-    pub fn repay_loan(ctx: Context<RepayLoan>) -> Result<()> {
-        let loan = &mut ctx.accounts.loan;
-        let borrower = &ctx.accounts.borrower;
+    pub fn repay_loan(ctx: Context<RepayLoan>, loan_index: u8) -> Result<()> {
+        let borrower_account = &mut ctx.accounts.borrower_account;
         let clock = Clock::get()?;
 
+        require!(loan_index < borrower_account.loans.len() as u8, ErrorCode::InvalidLoanIndex);
+        let loan = &mut borrower_account.loans[loan_index as usize];
+
         require!(loan.status == LoanStatus::Funded, ErrorCode::LoanNotRepayable);
-        require!(loan.borrower == *borrower.key, ErrorCode::UnauthorizedBorrower);
+        require!(loan.borrower == *ctx.accounts.borrower.key, ErrorCode::UnauthorizedBorrower);
 
         let ix = system_instruction::transfer(
             &ctx.accounts.borrower.key,
@@ -109,32 +103,11 @@ pub mod peer_to_peer_lending {
         loan.status = LoanStatus::Closed;
         loan.repay_date = Some(clock.unix_timestamp);
 
-        ctx.accounts.lending_pool.update_loan(loan);
- 
         Ok(())
     }
 
-    pub fn get_all_loans(ctx: Context<GetAllLoans>) -> Result<Vec<Loan>> {
-        Ok(ctx.accounts.lending_pool.loans.clone())
-    }
-
-    pub fn get_account_details(ctx: Context<GetAccountDetails>, account: Pubkey) -> Result<AccountDetails> {
-        let lending_pool = &ctx.accounts.lending_pool;
-        let account_type = lending_pool.get_account_type(&account);
-
-        if matches!(account_type, AccountType::None) {
-          return Err(ErrorCode::AccountNotFound.into());
-        }
-        
-        let loans = lending_pool.loans.iter()
-            .filter(|loan| loan.borrower == account || loan.lender == account)
-            .cloned()
-            .collect();
-
-        Ok(AccountDetails {
-            account_type,
-            loans,
-        })
+    pub fn get_account_details(ctx: Context<GetAccountDetails>) -> Result<UserAccount> {
+        Ok((*ctx.accounts.user_account).clone())
     }
 }
 
@@ -144,63 +117,38 @@ pub mod peer_to_peer_lending {
       Lender,
       Borrower,
   }
-  
-  #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, Default)]
+
+  impl Default for AccountType {
+      fn default() -> Self {
+          AccountType::None
+      }
+  }
+
+  #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
   pub enum LoanStatus {
-      #[default]
       Requested,
       Funded,
       Closed,
       Defaulted,
   }
 
-  #[account]
-  pub struct LendingPool {
-      pub account_types: Vec<(Pubkey, AccountType)>,
-      pub loans: Vec<Loan>,
-  }
-
-  impl LendingPool {
-    pub const LEN: usize = 8 +  
-    4 + (32 + 1) * 100 +  
-    4 + Loan::LEN * 100;  
-
-      pub fn get_account_type(&self, account: &Pubkey) -> AccountType {
-          self.account_types
-              .iter()
-              .find(|(key, _)| key == account)
-              .map(|(_, account_type)| account_type.clone())
-              .unwrap_or(AccountType::None)
-      }
-
-      pub fn set_account_type(&mut self, account: &Pubkey, account_type: AccountType) {
-          if let Some(entry) = self.account_types.iter_mut().find(|(key, _)| key == account) {
-              entry.1 = account_type;
-          } else {
-              self.account_types.push((*account, account_type));
-          }
-      }
-
-      pub fn add_loan(&mut self, loan: &Loan) {
-          self.loans.push(loan.clone());
-      }
-
-      pub fn update_loan(&mut self, updated_loan: &Loan) {
-          if let Some(loan) = self.loans.iter_mut().find(|l| l.borrower == updated_loan.borrower && l.request_date == updated_loan.request_date) {
-              *loan = updated_loan.clone();
-          }
+  impl Default for LoanStatus {
+      fn default() -> Self {
+          LoanStatus::Requested
       }
   }
 
   #[account]
   #[derive(Default)]
+  pub struct UserAccount {
+      pub account_type: AccountType,
+      pub loans: Vec<Loan>,
+  }
+
+  #[derive(AnchorSerialize, AnchorDeserialize, Clone, Default)]
   pub struct Loan {
-      /// CHECK: This is the lender's public key, set in the instruction logic
-      pub address: Pubkey,
-      /// CHECK: This is the borrower's public key, verified in the instruction logic
       pub borrower: Pubkey,
-      /// CHECK: This is the lender's public key, set in the instruction logic
-      pub lender: Pubkey,   
+      pub lender: Pubkey,
       pub amount: u64,
       pub mortgage_cid: String,
       pub due_date: i64,
@@ -210,75 +158,72 @@ pub mod peer_to_peer_lending {
       pub repay_date: Option<i64>,
   }
 
-  impl Loan {
-    pub const LEN: usize = 8 + 32 +  32 +  32 +  
-    8 + 4 + 200 +  8 +  1 + 8 + 9 + 9;   
-  }
-
-  #[derive(AnchorSerialize, AnchorDeserialize)]
-  pub struct AccountDetails {
-      pub account_type: AccountType,
-      pub loans: Vec<Loan>,
-  }
-
   #[derive(Accounts)]
   #[instruction(amount: u64, mortgage_cid: String, due_date: i64)]
   pub struct RequestLoan<'info> {
       #[account(mut)]
       pub borrower: Signer<'info>,
       #[account(
-        init,
-        payer = borrower,
-        space = 10000
-      )]
-      pub loan: Account<'info, Loan>,
-      #[account(
           init_if_needed,
           payer = borrower,
-          space = 10000,
-          seeds = [b"lending_pool"],
+          space = 8 + 1 + 4 + (32 + 32 + 8 + 200 + 8 + 1 + 8 + 9 + 9) * 3,
+          seeds = [b"rahul", borrower.key().as_ref()],
           bump
       )]
-      pub lending_pool: Account<'info, LendingPool>,
+      pub user_account: Account<'info, UserAccount>,
       pub system_program: Program<'info, System>,
   }
 
   #[derive(Accounts)]
+  #[instruction(loan_index: u8)]
   pub struct FundLoan<'info> {
       #[account(mut)]
       pub lender: Signer<'info>,
       /// CHECK: This account's address is checked in the instruction handler
       #[account(mut)]
       pub borrower: AccountInfo<'info>,
-      #[account(mut)]
-      pub loan: Account<'info, Loan>,
-      #[account(mut)]
-      pub lending_pool: Account<'info, LendingPool>,
+      #[account(
+          mut,
+          seeds = [b"rahul", borrower.key().as_ref()],
+          bump
+      )]
+      pub borrower_account: Account<'info, UserAccount>,
+      #[account(
+          init_if_needed,
+          payer = lender,
+          space = 8 + 1 + 4 + (32 + 32 + 8 + 200 + 8 + 1 + 8 + 9 + 9) * 3,
+          seeds = [b"rahul", lender.key().as_ref()],
+          bump
+      )]
+      pub lender_account: Account<'info, UserAccount>,
       pub system_program: Program<'info, System>,
   }
 
   #[derive(Accounts)]
+  #[instruction(loan_index: u8)]
   pub struct RepayLoan<'info> {
       #[account(mut)]
       pub borrower: Signer<'info>,
       /// CHECK: This account's address is checked in the instruction handler
       #[account(mut)]
       pub lender: AccountInfo<'info>,
-      #[account(mut)]
-      pub loan: Account<'info, Loan>,
-      #[account(mut)]
-      pub lending_pool: Account<'info, LendingPool>,
+      #[account(
+          mut,
+          seeds = [b"rahul", borrower.key().as_ref()],
+          bump
+      )]
+      pub borrower_account: Account<'info, UserAccount>,
       pub system_program: Program<'info, System>,
   }
 
   #[derive(Accounts)]
-  pub struct GetAllLoans<'info> {
-      pub lending_pool: Account<'info, LendingPool>,
-  }
-
-  #[derive(Accounts)]
   pub struct GetAccountDetails<'info> {
-      pub lending_pool: Account<'info, LendingPool>,
+      pub user: Signer<'info>,
+      #[account(
+          seeds = [b"rahul", user.key().as_ref()],
+          bump
+      )]
+      pub user_account: Account<'info, UserAccount>,
   }
 
   #[error_code]
@@ -297,10 +242,8 @@ pub mod peer_to_peer_lending {
       LoanNotRepayable,
       #[msg("Unauthorized borrower")]
       UnauthorizedBorrower,
-      #[msg("Loan is not defaulted")]
-      LoanNotDefaulted,
-      #[msg("Loan is not overdue")]
-      LoanNotOverdue,
-      #[msg("Account not found in the lending pool")]
-      AccountNotFound,
+      #[msg("Maximum number of loans reached")]
+      MaxLoansReached,
+      #[msg("Invalid loan index")]
+      InvalidLoanIndex,
   }

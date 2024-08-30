@@ -2,8 +2,8 @@
 import { AnchorProvider, Program } from '@coral-xyz/anchor';
 import { Cluster, PublicKey } from '@solana/web3.js';
 import PeerToPeerLendingIDL from '../target/idl/peer_to_peer_lending.json';
-import type { PeerToPeerLending } from '../target/types/peer_to_peer_lending';
- 
+import type {PeerToPeerLending } from '../target/types/peer_to_peer_lending'
+
 // Re-export the generated IDL and type
 export { PeerToPeerLending, PeerToPeerLendingIDL };
 
@@ -21,7 +21,7 @@ export function getLendingProgramId(cluster: Cluster) {
     case 'devnet':
     case 'testnet':
       // This is the program ID for the Auction program on devnet and testnet.
-      return new PublicKey('24TJfVSRZbifpwYphPRoWfhmcGm7ZGm7SYjXqqaFhzCR');
+      return new PublicKey('65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W');
     case 'mainnet-beta':
     default:
       return PeerToPeerLending_PROGRAM_ID;

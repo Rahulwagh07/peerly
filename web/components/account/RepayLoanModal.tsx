@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState,  useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Button, Dialog,
   DialogContent,
@@ -9,31 +7,28 @@ import {
   DialogTitle,
   DialogFooter, Label,
 } from '@peerly/ui-components';
-import { Cluster } from '@solana/web3.js';
 import { useAnchorProvider } from '../solana/solana-provider';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getLendingProgram, getLendingProgramId } from '@peerly/anchor';
+import { getLendingProgram } from '@peerly/anchor';
 import { PublicKey } from '@solana/web3.js';
-import * as anchor from "@coral-xyz/anchor";
 import toast from 'react-hot-toast';
-import { useCluster } from '../cluster/cluster-data-access';
 import { formatDateFromBN, lamportsToSol } from '@/lib/utils';
 import { Loan } from '@/lib/types';
+import * as anchor from "@coral-xyz/anchor";
 
 interface RepayLoanModalProps {
   loan: Loan;
+  loanIndex: number;
   onClose: () => void;
+  refreshLoans: () => void;
 }
 
-const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, onClose }) => {
+const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClose, refreshLoans }) => {
   const [isLoading, setIsLoading] = useState(false);
   const provider = useAnchorProvider();
   const { publicKey, connected } = useWallet();
-  const { cluster } = useCluster();
   const program = useMemo(() => getLendingProgram(provider), [provider]);
-  const programId = useMemo(() => getLendingProgramId(cluster.network as Cluster), [cluster]);
 
-  console.log("Loan::", loan)
   const repayLoan = async () => {
     setIsLoading(true);
 
@@ -50,24 +45,25 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, onClose }) => {
         throw new Error('Program not initialized.');
       }
 
-      const [lendingPoolPDA] = await PublicKey.findProgramAddress(
-        [Buffer.from('lending_pool')],
-        programId
+      const [borrowerAccountPDA] = await PublicKey.findProgramAddress(
+        [Buffer.from('rahul'), publicKey.toBuffer()],
+        program.programId
       );
 
-      const tx = await program.methods.repayLoan()
+      const tx = await program.methods.repayLoan(loanIndex)
         .accounts({
           borrower: publicKey,
           lender: new PublicKey(loan.lender),
-          loan: loan.address,
-          lendingPool: lendingPoolPDA,
-        })
+          borrowerAccount: borrowerAccountPDA,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        } as any)
         .transaction();
 
       const signature = await provider.sendAndConfirm(tx);
       console.log("Transaction signature:", signature);
 
       toast.success('Loan repaid successfully');
+      refreshLoans();
       onClose();
     } catch (error: any) {
       console.error('Error repaying loan:', error);
@@ -76,7 +72,6 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, onClose }) => {
       setIsLoading(false);
     }
   };
-
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -113,9 +108,9 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, onClose }) => {
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
-            <Label>Mortgage</Label>
+            <Label>Loan Index</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              {loan.mortgageCid}
+              {loanIndex}
             </div>
           </div>
         </div>
@@ -123,7 +118,7 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, onClose }) => {
           <div className="flex justify-end p-4">
             <Button onClick={onClose} variant="outline">Close</Button>
             <Button onClick={repayLoan} className="ml-2" disabled={isLoading}>
-              {isLoading ? "Processing.." : "Repay Loan"}
+              {isLoading ? "Processing..." : "Repay Loan"}
             </Button>
           </div>
         </DialogFooter>

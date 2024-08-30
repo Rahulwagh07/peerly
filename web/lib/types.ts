@@ -11,6 +11,12 @@ export interface Loan {
   requestDate: number;
   fundDate: number | null;
   repayDate: number | null;
+  index: number;
 }
 
 export type AccountType = 'None' | 'Lender' | 'Borrower';
+
+export type UserAccount = {
+  publicKey: PublicKey;
+  loans: Loan[];
+};

@@ -1,41 +1,41 @@
 "use client"
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
-  Button, Dialog,
+  Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogFooter, Label,
+  DialogDescription,
+  DialogFooter, Button, Label
 } from '@peerly/ui-components';
-import { Cluster } from '@solana/web3.js';
-
+ 
 import { useAnchorProvider } from '../solana/solana-provider';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getLendingProgram, getLendingProgramId } from '@peerly/anchor';
-import { PublicKey } from '@solana/web3.js';
+import { Cluster, PublicKey } from '@solana/web3.js';
 import * as anchor from "@coral-xyz/anchor";
 import toast from 'react-hot-toast';
 import { useCluster } from '../cluster/cluster-data-access';
 import { Loan } from '@/lib/types';
+ 
 
 interface FundLoanModalProps {
   loan: Loan;
+  loanIndex: number;
   onClose: () => void;
 }
 
-const FundLoanModal: React.FC<FundLoanModalProps> = ({ loan, onClose }) => {
+const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const provider = useAnchorProvider();
   const { publicKey, connected } = useWallet();
   const { cluster } = useCluster();
-  const program = useMemo(() => getLendingProgram(provider), [provider]);
-  const programId = useMemo(() => getLendingProgramId(cluster.network as Cluster), [cluster]);
+  const program = getLendingProgram(provider);
+  const programId = getLendingProgramId(cluster.network as Cluster);
 
   const fundLoan = async () => {
     setIsLoading(true);
-  
     try {
       if (!connected || !publicKey) {
         throw new Error('Wallet not connected.');
@@ -49,24 +49,27 @@ const FundLoanModal: React.FC<FundLoanModalProps> = ({ loan, onClose }) => {
         throw new Error('Program not initialized.');
       }
 
-  
-      const [lendingPoolPDA] = await PublicKey.findProgramAddress(
-        [Buffer.from('lending_pool')],
+      const [borrowerAccountPDA] = await PublicKey.findProgramAddress(
+        [Buffer.from('rahul'), new PublicKey(loan.borrower).toBuffer()],
         programId
       );
-  
-      const tx = await program.methods.fundLoan()
+
+      const [lenderAccountPDA] = await PublicKey.findProgramAddress(
+        [Buffer.from('rahul'), publicKey.toBuffer()],
+        programId
+      );
+
+      const tx = await program.methods.fundLoan(loanIndex)
         .accounts({
           lender: publicKey,
           borrower: new PublicKey(loan.borrower),
-          loan: loan.address,
-          lendingPool: lendingPoolPDA,
-        })
-        .transaction();
-  
-      const signature = await provider.sendAndConfirm(tx);
-      console.log("Transaction signature:", signature);
-  
+          borrowerAccount: borrowerAccountPDA,
+          lenderAccount: lenderAccountPDA,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        } as any)
+        .rpc();
+
+      console.log("Transaction signature:", tx);
       toast.success('Loan funded successfully');
       onClose();
     } catch (error: any) {
@@ -76,7 +79,7 @@ const FundLoanModal: React.FC<FundLoanModalProps> = ({ loan, onClose }) => {
       setIsLoading(false);
     }
   };
- 
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>

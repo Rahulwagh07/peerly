@@ -1,5 +1,5 @@
 {
-  "address": "24TJfVSRZbifpwYphPRoWfhmcGm7ZGm7SYjXqqaFhzCR",
+  "address": "65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W",
   "metadata": {
     "name": "peer_to_peer_lending",
     "version": "0.1.0",
@@ -30,19 +30,60 @@
           "writable": true
         },
         {
-          "name": "loan",
-          "writable": true
+          "name": "borrower_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  104,
+                  117,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "borrower"
+              }
+            ]
+          }
         },
         {
-          "name": "lending_pool",
-          "writable": true
+          "name": "lender_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  104,
+                  117,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "lender"
+              }
+            ]
+          }
         },
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "loan_index",
+          "type": "u8"
+        }
+      ]
     },
     {
       "name": "get_account_details",
@@ -58,44 +99,35 @@
       ],
       "accounts": [
         {
-          "name": "lending_pool"
-        }
-      ],
-      "args": [
+          "name": "user",
+          "signer": true
+        },
         {
-          "name": "account",
-          "type": "pubkey"
-        }
-      ],
-      "returns": {
-        "defined": {
-          "name": "AccountDetails"
-        }
-      }
-    },
-    {
-      "name": "get_all_loans",
-      "discriminator": [
-        31,
-        124,
-        215,
-        197,
-        39,
-        169,
-        52,
-        79
-      ],
-      "accounts": [
-        {
-          "name": "lending_pool"
+          "name": "user_account",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  104,
+                  117,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
         }
       ],
       "args": [],
       "returns": {
-        "vec": {
-          "defined": {
-            "name": "Loan"
-          }
+        "defined": {
+          "name": "UserAccount"
         }
       }
     },
@@ -122,19 +154,38 @@
           "writable": true
         },
         {
-          "name": "loan",
-          "writable": true
-        },
-        {
-          "name": "lending_pool",
-          "writable": true
+          "name": "borrower_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  104,
+                  117,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "borrower"
+              }
+            ]
+          }
         },
         {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "loan_index",
+          "type": "u8"
+        }
+      ]
     },
     {
       "name": "request_loan",
@@ -155,31 +206,23 @@
           "signer": true
         },
         {
-          "name": "loan",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "lending_pool",
+          "name": "user_account",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  108,
-                  101,
-                  110,
-                  100,
-                  105,
-                  110,
-                  103,
-                  95,
-                  112,
-                  111,
-                  111,
+                  114,
+                  97,
+                  104,
+                  117,
                   108
                 ]
+              },
+              {
+                "kind": "account",
+                "path": "borrower"
               }
             ]
           }
@@ -207,16 +250,16 @@
   ],
   "accounts": [
     {
-      "name": "Loan",
+      "name": "UserAccount",
       "discriminator": [
-        20,
-        195,
-        70,
-        117,
-        165,
-        227,
-        182,
-        1
+        211,
+        33,
+        136,
+        16,
+        186,
+        110,
+        242,
+        127
       ]
     }
   ],
@@ -258,47 +301,16 @@
     },
     {
       "code": 6007,
-      "name": "LoanNotDefaulted",
-      "msg": "Loan is not defaulted"
+      "name": "MaxLoansReached",
+      "msg": "Maximum number of loans reached"
     },
     {
       "code": 6008,
-      "name": "LoanNotOverdue",
-      "msg": "Loan is not overdue"
-    },
-    {
-      "code": 6009,
-      "name": "AccountNotFound",
-      "msg": "Account not found in the lending pool"
+      "name": "InvalidLoanIndex",
+      "msg": "Invalid loan index"
     }
   ],
   "types": [
-    {
-      "name": "AccountDetails",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "account_type",
-            "type": {
-              "defined": {
-                "name": "AccountType"
-              }
-            }
-          },
-          {
-            "name": "loans",
-            "type": {
-              "vec": {
-                "defined": {
-                  "name": "Loan"
-                }
-              }
-            }
-          }
-        ]
-      }
-    },
     {
       "name": "AccountType",
       "type": {
@@ -321,10 +333,6 @@
       "type": {
         "kind": "struct",
         "fields": [
-          {
-            "name": "address",
-            "type": "pubkey"
-          },
           {
             "name": "borrower",
             "type": "pubkey"
@@ -388,6 +396,32 @@
           },
           {
             "name": "Defaulted"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "account_type",
+            "type": {
+              "defined": {
+                "name": "AccountType"
+              }
+            }
+          },
+          {
+            "name": "loans",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Loan"
+                }
+              }
+            }
           }
         ]
       }

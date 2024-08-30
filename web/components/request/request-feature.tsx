@@ -3,7 +3,7 @@
 import React from 'react';
 import { useState, useMemo } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-import { Cluster, Keypair, PublicKey } from '@solana/web3.js';
+import { Cluster, PublicKey } from '@solana/web3.js';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { getLendingProgram, getLendingProgramId } from '@peerly/anchor';
@@ -11,7 +11,7 @@ import { useCluster } from '../cluster/cluster-data-access';
 import { useAnchorProvider} from '../solana/solana-provider';
 import { useTransactionToast } from '../ui/ui-layout';
 import { 
-    Card, CardContent, CardDescription, CardFooter, 
+    Card, CardContent, CardDescription,
     CardHeader, CardTitle, Label, Input, Button, 
     Popover, PopoverContent, PopoverTrigger 
   }
@@ -45,35 +45,33 @@ export default function RequestLoanFeature() {
   const requestLoan = async ({ amount, mortgageCID, dueDate }: { amount: number; mortgageCID: string; dueDate: number }) => {
     try {
       const lamportsAmount = Math.floor(amount * anchor.web3.LAMPORTS_PER_SOL);
-      const amountBN = new anchor.BN(lamportsAmount);      
-      const loanAccountKeypair = Keypair.generate();
+      const amountBN = new anchor.BN(lamportsAmount);
   
-      const [lendingPoolPDA] = await PublicKey.findProgramAddress(
-        [Buffer.from("lending_pool")],
+      const [userAccountPDA] = await PublicKey.findProgramAddress(
+        [Buffer.from("rahul"), provider.wallet.publicKey.toBuffer()],
         programId
       );
-      console.log("lendingPoolPDA", lendingPoolPDA.toString())
+  
+      console.log("UserAccountPDA", userAccountPDA.toString());
+
       const transaction = await program.methods
         .requestLoan(amountBN, mortgageCID, new anchor.BN(dueDate))
         .accounts({
           borrower: provider.wallet.publicKey,
-          loan: loanAccountKeypair.publicKey,
-          lendingPool: lendingPoolPDA,
+          userAccount: userAccountPDA,
           systemProgram: anchor.web3.SystemProgram.programId,
-        } as any)
-        .signers([loanAccountKeypair])
-        .rpc();
+        }as any)
+        .rpc();  
   
       console.log("Transaction signature:", transaction);
       transactionToast(transaction);
-      toast.success('Loan request submitted successfully!');
+      toast.success("Loan request submitted successfully!");
       getProgramAccount.refetch();
-    } catch (error:any) {
-      console.error('Failed to submit loan request:', error);
+    } catch (error: any) {
+      console.error("Failed to submit loan request:", error);
       toast.error(`Request loan failed: ${error.message}`);
     }
   };
-  
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

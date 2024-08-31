@@ -40,6 +40,18 @@ export const formatAddress = (address: string) => {
   return `${upperAfterLastTwo.substring(0, 5)}...${upperAfterLastTwo.substring(39)}`
 }
 
+export function calculateInterest(fundDate: anchor.BN, amount: anchor.BN, interestRate: number): anchor.BN {
+  const currentTimestamp = new anchor.BN(Math.floor(Date.now() / 1000));
+  const timeElapsed = currentTimestamp.sub(fundDate);
+  const timeInYears = timeElapsed.toNumber() / (365.0 * 24.0 * 60.0 * 60.0);
+  const interestFloat = amount.toNumber() * interestRate * timeInYears;
+  return new anchor.BN(Math.floor(interestFloat));
+}
+
+export function addTwoBigNumber(num1: anchor.BN, num2: anchor.BN): anchor.BN {
+  return num1.add(num2);
+}
+
 export const handleCustomError = ({ error, customError }: { error: any; customError: string }) => {
   if (error.message.includes("Invalid loan amount")) {
     toast.error("The loan amount must be greater than zero.");

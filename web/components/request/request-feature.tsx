@@ -26,6 +26,7 @@ import { IoClose } from "react-icons/io5";
 import { useRouter } from 'next/navigation';
 import { AccountType } from '@/lib/types';
 import { handleCustomError } from '@/lib/utils';
+import { Terms } from '../common/Terms';
 
 export default function RequestLoanFeature() {
   const { connection } = useConnection();
@@ -43,6 +44,7 @@ export default function RequestLoanFeature() {
     queryFn: () => connection.getParsedAccountInfo(programId),
   });
   const [loading, setLoading] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   const programId = useMemo(() => getLendingProgramId(cluster.network as Cluster), [cluster]);
   const program = useMemo(() => getLendingProgram(provider), [provider]);
@@ -147,7 +149,7 @@ export default function RequestLoanFeature() {
   }, [publicKey]);
 
   return publicKey ? (
-    <div className='flex relative overflow-hidden items-center  justify-center py-16  -mt-24 sm:-mt-24 lg:py-12'>
+    <div className='flex relative overflow-hidden items-center  justify-center py-16  -mt-24 sm:-mt-24 lg:py-6'>
        <div
         aria-hidden="true"
         className=" absolute  sm:flex -top-[600px] start-1/2 transform -translate-x-1/2"
@@ -155,7 +157,7 @@ export default function RequestLoanFeature() {
         <div className="bg-gradient-to-r from-background/50 to-background blur-3xl w-[25rem] h-[44rem] rotate-[-60deg] transform -translate-x-[10rem]" />
         <div className="bg-gradient-to-tl blur-3xl w-[90rem] h-[50rem] rounded-full origin-top-left -rotate-12 -translate-x-[15rem] from-primary-foreground via-primary-foreground to-background" />
       </div>
-      <Card className='p-4 relative mt-20'>
+      <Card className='p-4 relative mt-20 lg:px-16'>
         <Link href="/" className='hidden' >
          <IoClose className='absolute text-2xl top-5 right-5 text-red-500'/>
          </Link>
@@ -197,7 +199,15 @@ export default function RequestLoanFeature() {
               <Label htmlFor="dueDate">Pick a Due Date</Label>
               <DatePicker onDateChange={setSelectedDate} />
             </div>
-            <Button type="submit">{loading ? "Submitting.." : "Request Loan"}</Button>
+            <div className="flex flex-col space-y-1.5 w-full">
+              <Label>Loan Terms</Label>
+              <Terms isChecked={isChecked}
+                setIsChecked={setIsChecked}
+                text1="I agree that"
+                text2="interest rate will be applied."
+              />
+            </div>
+            <Button type="submit" disabled={!isChecked}>{loading ? "Submitting.." : "Request Loan"}</Button>
           </div>
         </form>
       </CardContent>

@@ -12,7 +12,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { getLendingProgram } from '@peerly/anchor';
 import { PublicKey } from '@solana/web3.js';
 import toast from 'react-hot-toast';
-import { formatAddress, formatDateFromBN, formatStatus, handleCustomError, lamportsToSol } from '@/lib/utils';
+import { addTwoBigNumber, calculateInterest, formatAddress, formatDateFromBN, formatStatus, handleCustomError, lamportsToSol } from '@/lib/utils';
 import { AccountType, Loan } from '@/lib/types';
 import * as anchor from "@coral-xyz/anchor";
  
@@ -30,6 +30,11 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClos
   const provider = useAnchorProvider();
   const { publicKey, connected } = useWallet();
   const program = useMemo(() => getLendingProgram(provider), [provider]);
+
+  const interestInLamports = calculateInterest(new anchor.BN(loan.fundDate), new anchor.BN(loan.amount), 0.30);
+  const interestAmount = lamportsToSol(interestInLamports).toFixed(9);
+  const totalAmount = lamportsToSol(addTwoBigNumber(interestInLamports, new anchor.BN(loan.amount)));
+
   const repayLoan = async () => {
     setIsLoading(true);
 
@@ -97,10 +102,24 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClos
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
-            <Label>Amount</Label>
+            <Label>Loan Amount</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
               {lamportsToSol(loan.amount)} <b className="text-red-500 ml-1">SOL</b>
             </div>
+          </div>
+          <div className={`flex flex-col  gap-4 ${formatStatus(loan.status) === "Funded" ? "" : "hidden"}`}>
+          <div className="flex flex-col items-start gap-1">
+            <Label>Interest</Label>
+            <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
+              {interestAmount}<b className="text-red-500 ml-1">SOL</b>
+            </div>
+          </div>
+          <div className="flex flex-col items-start gap-1">
+            <Label>Total Amount</Label>
+            <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
+              {totalAmount}<b className="text-red-500 ml-1">SOL</b>
+            </div>
+          </div>
           </div>
           <div className="flex flex-col items-start gap-1">
             <Label>Due Date</Label>
@@ -109,8 +128,8 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClos
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <div className="flex justify-end p-4">
+        <DialogFooter className='p-0'>
+          <div className="flex justify-end">
             <Button onClick={onClose} variant="outline">Close</Button>
             <Button onClick={repayLoan} 
               className={`ml-2 ${accountType === 'Lender' || formatStatus(loan.status) !== 'Funded' ? 'hidden' : ''}`}

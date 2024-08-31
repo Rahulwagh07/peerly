@@ -21,6 +21,7 @@ import { Loan } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { formatAddress, handleCustomError } from '@/lib/utils';
 import { useTransactionToast } from '../ui/ui-layout';
+import { Terms } from '../common/Terms';
  
 
 interface FundLoanModalProps {
@@ -38,6 +39,7 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
   const programId = getLendingProgramId(cluster.network as Cluster);
   const router = useRouter();
   const transactionToast = useTransactionToast();
+  const [isChecked, setIsChecked] = useState(false);
 
   const fundLoan = async () => {
     setIsLoading(true);
@@ -125,17 +127,25 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
-            <Label>Loan State</Label>
+            <Label>Loan Status</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
               {loan.status}
             </div>
+          </div>
+          <div className={`flex flex-col space-y-1.5 w-full ${loan.status === "Requested" ? "" : "hidden"}`}>
+            <Label>Loan Terms</Label>
+            <Terms isChecked={isChecked}
+              setIsChecked={setIsChecked}
+              text1="I agree to give loan at"
+              text2="interest rate."
+            />
           </div>
         </div>
         <DialogFooter>
           <div className="flex justify-end px-4">
             <Button onClick={onClose} variant="outline">Close</Button>
             <Button onClick={fundLoan} className="ml-2" 
-            disabled={loan.status === "Closed" || loan.status === "Funded" || isLoading}>
+              disabled={loan.status === "Closed" || loan.status === "Funded" || isLoading || !isChecked}>
               {isLoading ? "Submitting" : "Give Loan"}
             </Button>
           </div>

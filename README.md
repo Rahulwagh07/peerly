@@ -1,96 +1,46 @@
-# peerly
+<div align="center">
+    <h1>Peerly</h1>
+    <p> The Peer-to-Peer Lending Platform a decentralized application (dApp) built on the Solana blockchain, allowing users to request, fund, and repay loans in a trustless, peer-to-peer manner. The platform leverages programs on solana to facilitate transparent and secure loan transactions between lenders and borrowers</p>
+    <h2>
+        <a href="https://peerly.vercel.app">https://peerly.vercel.app</a>
+    </h2>
 
-This project is generated with the [create-solana-dapp](https://github.com/solana-developers/create-solana-dapp) generator.
+</div>
+ 
+## ✨ Features
 
-## Getting Started
+- ⚡️Request Loan: Borrowers can request loans by providing collateral in the form of a CID (Content Identifier).
+- ⚡️Fund Loan: Lenders can fund loans, transferring the specified amount to the borrower.
+- ⚡️Repay Loan: Borrowers can repay their loans, transferring the amount back to the lender to close the loan.
+- ⚡️Get Account Details: Users can view their account details, including loan history and statuses.
 
-### Prerequisites
+Built with:
 
-- Node v18.18.0 or higher
+- [Nextjs 14](https://nextjs.org/)
+- [Anchor](https://www.anchor-lang.com/)
+- [Rust](https://www.rust-lang.org/)
+- [TailwindCSS](https://tailwindcss.com)
+- [shadcn-ui](https://ui.shadcn.com)
+ 
+## 🚀 Installation
 
-- Rust v1.77.2 or higher
-- Anchor CLI 0.30.0 or higher
-- Solana CLI 1.18.9 or higher
+Before you begin, make sure you have the necessary software installed:
+- [See here](https://www.anchor-lang.com/docs/installation)
+ 
+To set up locally, you can clone the repository and run the following commands:
 
-### Installation
+```bash
+git clone https://github.com/Rahulwagh07/peerly.git
+cd peerly
+pnpm install
+```
+Build and deploy the program
 
-#### Clone the repo
-
-```shell
-git clone <repo-url>
-cd <repo-name>
+```bash
+anchor build
+anchor deploy
 ```
 
-#### Install Dependencies
+### Contributing
 
-```shell
-npm install
-```
-
-#### Start the web app
-
-```
-npm run dev
-```
-
-## Apps
-
-### anchor
-
-This is a Solana program written in Rust using the Anchor framework.
-
-#### Commands
-
-You can use any normal anchor commands. Either move to the `anchor` directory and run the `anchor` command or prefix the command with `npm run`, eg: `npm run anchor`.
-
-#### Sync the program id:
-
-Running this command will create a new keypair in the `anchor/target/deploy` directory and save the address to the Anchor config file and update the `declare_id!` macro in the `./src/lib.rs` file of the program.
-
-You will manually need to update the constant in `anchor/lib/counter-exports.ts` to match the new program id.
-
-```shell
-npm run anchor keys sync
-```
-
-#### Build the program:
-
-```shell
-npm run anchor-build
-```
-
-#### Start the test validator with the program deployed:
-
-```shell
-npm run anchor-localnet
-```
-
-#### Run the tests
-
-```shell
-npm run anchor-test
-```
-
-#### Deploy to Devnet
-
-```shell
-npm run anchor deploy --provider.cluster devnet
-```
-
-### web
-
-This is a React app that uses the Anchor generated client to interact with the Solana program.
-
-#### Commands
-
-Start the web app
-
-```shell
-npm run dev
-```
-
-Build the web app
-
-```shell
-npm run build
-```
+Contributions are always welcome! A contribution can be as small as a ⭐ or even finding and creating issues.

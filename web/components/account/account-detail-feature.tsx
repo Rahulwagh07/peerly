@@ -169,7 +169,7 @@ const AccountDetailFeature: React.FC = () => {
                 Lender (Funded By)
               </TableHead>
               <TableHead>Amount (SOL)</TableHead>
-              <TableHead>Interest Paid(SOL)</TableHead>
+              <TableHead>{accountType === "Lender" ? "Interest Earned(SOL)" : "Interest Paid(SOL)"}</TableHead>
               <TableHead>Mortgage CID</TableHead>
               <TableHead>Request Date</TableHead>
               <TableHead>Repay Deadline</TableHead>

@@ -19,7 +19,6 @@ import { AccountBalance } from './account-data-access';
 import Loader from '../common/Loader';
 import useWalletConnection from '@/hooks/useWalletConnection';
 import CustomError from '../common/CustomError';
-import { SiSolana } from "react-icons/si";
 import toast from 'react-hot-toast';
 
 const AccountDetailFeature: React.FC = () => {
@@ -132,21 +131,28 @@ const AccountDetailFeature: React.FC = () => {
   }
  
   return (
-    <div className="container mx-auto">
+    <div className="mx-2 sm:mx-auto  w-11/12 relative overflow-hidden py-16  -mt-24 sm:-mt-24 lg:py-12">
+       <div
+        aria-hidden="true"
+        className=" absolute  hidden sm:flex -top-[600px] start-1/2 transform -translate-x-1/2"
+      >
+        <div className="bg-gradient-to-r from-background/50 to-background blur-3xl w-[25rem] h-[44rem] rotate-[-60deg] transform -translate-x-[10rem]" />
+        <div className="bg-gradient-to-tl blur-3xl w-[90rem] h-[50rem] rounded-full origin-top-left -rotate-12 -translate-x-[15rem] from-primary-foreground via-primary-foreground to-background" />
+      </div>
     <div>
-      <CardHeader className="flex items-center justify-center">
+      <CardHeader className="flex items-center justify-center  mt-2 sm:mt-12">
         <CardTitle>Dashboard</CardTitle>
         <CardDescription>See all your loan details that you are part of.</CardDescription>
       </CardHeader>
   
       <div className="flex items-center justify-center mb-2">
-        <Card className="flex gap-4 p-3 px-16 items-center justify-center">
-          <CardDescription className="text-xl">
+        <Card className="hidden sm:flex gap-4 p-3 px-16 items-center justify-center
+            rounded-full bg-gradient-to-tr to-transparent  border-2 w-fit">
+          <CardDescription>
             Account Type: <span className="text-sky-500">{accountType}</span>
           </CardDescription>
           <CardDescription className="flex gap-2 items-center justify-center">
-            <span className="text-xl">Bal:</span> 
-            <SiSolana className="text-blue-500 text-xl" />
+            <span>Bal:</span> 
             <AccountBalance address={address} />
           </CardDescription>
         </Card>

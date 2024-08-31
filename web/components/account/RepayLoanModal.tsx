@@ -12,9 +12,10 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { getLendingProgram } from '@peerly/anchor';
 import { PublicKey } from '@solana/web3.js';
 import toast from 'react-hot-toast';
-import { formatDateFromBN, formatStatus, handleCustomError, lamportsToSol } from '@/lib/utils';
+import { formatAddress, formatDateFromBN, formatStatus, handleCustomError, lamportsToSol } from '@/lib/utils';
 import { AccountType, Loan } from '@/lib/types';
 import * as anchor from "@coral-xyz/anchor";
+ 
 
 interface RepayLoanModalProps {
   loan: Loan;
@@ -84,13 +85,15 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClos
           <div className="flex flex-col items-start gap-1">
             <Label>Borrower Account</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              {loan.borrower.toString()}
+              <span className="hidden sm:block">{loan.borrower.toString()}</span>
+              <span className="block sm:hidden">{formatAddress(loan.borrower.toString())}</span>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
             <Label>Lender Account</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              {loan.lender.toString()}
+              <span className="hidden sm:block">{loan.borrower.toString()}</span>
+              <span className="block sm:hidden">{formatAddress(loan.borrower.toString())}</span>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">

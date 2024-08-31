@@ -19,7 +19,7 @@ import toast from 'react-hot-toast';
 import { useCluster } from '../cluster/cluster-data-access';
 import { Loan } from '@/lib/types';
 import { useRouter } from 'next/navigation';
-import { handleCustomError } from '@/lib/utils';
+import { formatAddress, handleCustomError } from '@/lib/utils';
 import { useTransactionToast } from '../ui/ui-layout';
  
 
@@ -101,7 +101,8 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
           <div className="flex flex-col items-start gap-1">
             <Label>Borrower Account</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              {loan.borrower.toString()}
+              <span className="hidden sm:block">{loan.borrower.toString()}</span>
+              <span className="block sm:hidden">{formatAddress(loan.borrower.toString())}</span>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
@@ -119,7 +120,8 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
           <div className="flex flex-col items-start gap-1">
             <Label>Mortgage</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              {loan.mortgageCid}
+              <span className="hidden sm:block">{loan.mortgageCid.toString()}</span>
+              <span className="block sm:hidden">{formatAddress(loan.mortgageCid.toString())}</span>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">

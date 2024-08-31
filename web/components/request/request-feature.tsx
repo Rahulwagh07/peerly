@@ -75,7 +75,7 @@ export default function RequestLoanFeature() {
     } catch (error: any) {
       setLoading(false);
       console.error("Failed to submit loan request:", error);
-      handleCustomError({error, customError:"Failed to submit laon reuest"});
+      handleCustomError({error, customError:"Failed to submit loan request. Make sure you have some SOL."});
     }
   };
   
@@ -147,8 +147,15 @@ export default function RequestLoanFeature() {
   }, [publicKey]);
 
   return publicKey ? (
-    <div className='flex items-center  justify-center mt-8'>
-      <Card className='p-4 relative'>
+    <div className='flex relative overflow-hidden items-center  justify-center py-16  -mt-24 sm:-mt-24 lg:py-12'>
+       <div
+        aria-hidden="true"
+        className=" absolute  sm:flex -top-[600px] start-1/2 transform -translate-x-1/2"
+      >
+        <div className="bg-gradient-to-r from-background/50 to-background blur-3xl w-[25rem] h-[44rem] rotate-[-60deg] transform -translate-x-[10rem]" />
+        <div className="bg-gradient-to-tl blur-3xl w-[90rem] h-[50rem] rounded-full origin-top-left -rotate-12 -translate-x-[15rem] from-primary-foreground via-primary-foreground to-background" />
+      </div>
+      <Card className='p-4 relative mt-20'>
         <Link href="/" className='hidden' >
          <IoClose className='absolute text-2xl top-5 right-5 text-red-500'/>
          </Link>

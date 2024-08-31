@@ -4,16 +4,16 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <div className="relative overflow-hidden py-16 -mt-4 lg:py-12">
+    <div className="relative overflow-hidden py-16  -mt-24 sm:-mt-24 lg:py-12">
       <div
         aria-hidden="true"
-        className="flex absolute -top-96 start-1/2 transform -translate-x-1/2"
+        className="flex absolute -top-[600px] start-1/2 transform -translate-x-1/2"
       >
         <div className="bg-gradient-to-r from-background/50 to-background blur-3xl w-[25rem] h-[44rem] rotate-[-60deg] transform -translate-x-[10rem]" />
         <div className="bg-gradient-to-tl blur-3xl w-[90rem] h-[50rem] rounded-full origin-top-left -rotate-12 -translate-x-[15rem] from-primary-foreground via-primary-foreground to-background" />
       </div>
       <div className="relative z-10">
-        <div className="container py-10 lg:py-16">
+        <div className="container py-10 lg:py-16 mt-12 sm:mt-20">
           <div className="max-w-2xl text-center mx-auto">
             <p className="text-2xl font-bold">Peerly</p>
             <div className="mt-5 max-w-2xl">

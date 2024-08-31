@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import toast, { ToastBar, Toaster } from 'react-hot-toast';
 import { ExplorerLink } from '../cluster/cluster-ui';
 import Loader from '../common/Loader';
+import { Card } from '@peerly/ui-components';
 
 export function UiLayout({
   children,
@@ -19,29 +20,28 @@ export function UiLayout({
   const pathname = usePathname();
   return (
     <div className="">
-      <div  className="flex justify-between items-center align-baseline px-8  shadow-lg 
-     dark:bg-gray-900 border-b mb-4 p-2  dark:border-slate-800">
-        <div className="flex-1">
-          <Link className="btn btn-ghost normal-case text-xl" href="/">
-            Peerly
-          </Link>
-          <ul className="menu menu-horizontal px-1  space-x-2">
-            {links.map(({ label, path }) => (
-              <li key={path}>
-                <Link
-                  className={pathname.startsWith(path) ? 'active' : ''}
-                  href={path}
-                >
-                  {label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="flex items-center justify-center gap-2">
-          <WalletButton />
-        </div>
-      </div>
+     <div className='flex items-center justify-center'>
+     <Card  className="flex z-50 items-center justify-between sm:justify-center align-baseline px-8 gap-2 sm:gap-16 shadow-lg 
+     dark:bg-gray-900 border-b mb-4 py-1.5 mt-4 rounded-2xl w-11/12 h-16">
+      <Link href="/">
+        Home
+      </Link>
+        {links.map(({ label, path }) => (
+          <p key={path}
+          className='hidden sm:block'>
+            <Link
+              className={pathname.startsWith(path) ? 'text-sky-400' : ''}
+              href={path}
+            >
+              {label}
+            </Link>
+          </p>
+        ))}
+
+        <WalletButton />
+      
+    </Card>
+     </div>
       <div>
         <Suspense
           fallback={
@@ -55,14 +55,14 @@ export function UiLayout({
           toastOptions={{
             className: '',
             style: {
-              backgroundColor: '#111827',  
+              backgroundColor: '#020617',  
               color: '#fff',  
-              border: '1px solid #555',  
+              border: '1px solid #1f2937',  
               padding: '16px',
             },
             success: {
               style: {
-                background: '#111827',  
+                background: '#020617',  
                 color: '#fff',
               },
               iconTheme: {
@@ -72,7 +72,7 @@ export function UiLayout({
             },
             error: {
               style: {
-                background: '#111827',  
+                background: '#020617',  
                 
               },
               iconTheme: {

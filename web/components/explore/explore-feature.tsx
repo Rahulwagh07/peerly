@@ -135,16 +135,24 @@ export const ShowAllLoansDetails = () => {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className=" mx-2 sm:mx-auto  w-11/12 relative overflow-hidden py-16  -mt-24 sm:-mt-24 lg:py-12">
+      <div
+        aria-hidden="true"
+        className=" absolute  hidden sm:flex -top-[600px] start-1/2 transform -translate-x-1/2"
+      >
+        <div className="bg-gradient-to-r from-background/50 to-background blur-3xl w-[25rem] h-[44rem] rotate-[-60deg] transform -translate-x-[10rem]" />
+        <div className="bg-gradient-to-tl blur-3xl w-[90rem] h-[50rem] rounded-full origin-top-left -rotate-12 -translate-x-[15rem] from-primary-foreground via-primary-foreground to-background" />
+      </div>
       <div>
-        <CardHeader className='flex items-center justify-center'>
+        <CardHeader className='flex items-center justify-center  mt-2 sm:mt-12'>
           <CardTitle>Explore Loans</CardTitle>
           <CardDescription>View all available loan requests on the platform</CardDescription>
         </CardHeader>
        
-        <div className='flex items-center justify-center p-2'>
-        <Card className='flex gap-8 py-1 px-8 items-center justify-center
-             text-gray-500 dark:text-gray-400 mx-auto'>
+        <div className='flex items-center  justify-center pb-3'>
+        <Card className='hidden sm:flex gap-8 py-1 px-8 items-center justify-center
+             text-gray-500 dark:text-gray-400 mx-auto rounded-full
+              bg-gradient-to-tr to-transparent  border-2 w-fit'>
               {['All', 'Funded',  'Requested', 'Closed', 'Defaulted'].map(tab => (
                 <button 
                   key={tab}
@@ -185,7 +193,7 @@ export const ShowAllLoansDetails = () => {
                   <TableRow key={index}>
                     <TableCell 
                       onClick={() => handleCopy(loan.borrower.toString())}
-                      className='flex items-center cursor-pointer'>{formatAddress(loan.borrower.toString())} 
+                      className='flex items-baseline mt-2 cursor-pointer'>{formatAddress(loan.borrower.toString())} 
                       <MdContentCopy className='ml-2 text-blue-500'/>
                     </TableCell>
                     <TableCell>{loan.amount}</TableCell>

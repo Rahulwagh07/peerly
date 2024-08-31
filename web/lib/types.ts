@@ -12,6 +12,7 @@ export interface Loan {
   fundDate: number | null;
   repayDate: number | null;
   index: number;
+  interestAccrued: string | null;   
 }
 
 export type AccountType = 'None' | 'Lender' | 'Borrower';

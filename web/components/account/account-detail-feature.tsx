@@ -169,6 +169,7 @@ const AccountDetailFeature: React.FC = () => {
                 Lender (Funded By)
               </TableHead>
               <TableHead>Amount (SOL)</TableHead>
+              <TableHead>Interest Paid(SOL)</TableHead>
               <TableHead>Mortgage CID</TableHead>
               <TableHead>Request Date</TableHead>
               <TableHead>Repay Deadline</TableHead>
@@ -188,12 +189,20 @@ const AccountDetailFeature: React.FC = () => {
                   className={`cursor-pointer ${accountType === "Borrower" ? "hidden" : ""}`}>
                   {formatAddress(loan.borrower.toString())}
                 </TableCell>
-                <TableCell 
-                  onClick={() => handleCopy(loan.lender.toString())}
-                  className={`cursor-pointer ${accountType === "Lender" ? "hidden" : ""}`}>
-                  {formatAddress(loan.lender.toString())}
+                <TableCell
+                  onClick={formatStatus(loan.status) !== "Requested" ? () => handleCopy(loan.lender.toString()) : undefined}
+                  className={`${
+                    formatStatus(loan.status) !== "Requested" ? "cursor-pointer" : "cursor-default"
+                  } ${accountType === "Lender" ? "hidden" : ""}`}
+                  >
+                  {formatStatus(loan.status) === "Requested" ? "---" : formatAddress(loan.lender.toString())}
                 </TableCell>
+
                 <TableCell>{lamportsToSol(loan.amount)} SOL</TableCell>
+                <TableCell>
+                  {formatStatus(loan.status) === "Closed" ? 
+                  lamportsToSol(loan.interestAccrued).toFixed(9): "---"}
+                </TableCell>
                 <TableCell 
                   onClick={() => handleCopy(loan.mortgageCid.toString())}
                   className="flex items-center cursor-pointer">

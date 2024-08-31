@@ -53,7 +53,7 @@ export const ShowAllLoansDetails = () => {
       const accounts = await program.account.userAccount.all();
       
       let allLoans: Loan[] = [];
-
+      
       accounts.forEach((account) => {
         const userAccount = account.account;
         const loans = userAccount.loans.map((loan: any, loanIndex: number) => ({
@@ -68,6 +68,7 @@ export const ShowAllLoansDetails = () => {
           fundDate: loan.fundDate ? formatDateFromBN(loan.fundDate) : null,
           repayDate: loan.repayDate ? formatDateFromBN(loan.repayDate) : null,
           index: loanIndex,
+          interestAccrued: loan.interestAccrued ? lamportsToSol(loan.interestAccrued).toFixed(9) : null,
         }));
         //@ts-ignore
         allLoans = allLoans.concat(loans);
@@ -173,12 +174,16 @@ export const ShowAllLoansDetails = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Borrower</TableHead>
-                <TableHead>Amount (SOL)</TableHead>
+                <TableHead>Amount <span className='text-[0.6rem] sm:text-xs text-red-400'> (SOL)</span></TableHead>
+                <TableHead className={`${activeTab === "Closed" ? "" : "hidden"}`}>
+                    Interest Paid <span className='text-[0.6rem] sm:text-xs text-red-400'> (SOL) </span>
+                  </TableHead>
                 <TableHead className={`${activeTab === "Closed" || activeTab === "Funded" ? "" : "hidden"}`}>
                   Lender(Funded By)
                 </TableHead>
                 <TableHead>Mortgage CID</TableHead>
                 <TableHead>Request Date</TableHead>
+                <TableHead className={`${activeTab === "Funded" ? "" : "hidden"}`}>Funded Date</TableHead>
                 <TableHead>Repay Deadline</TableHead>
                 <TableHead className={`${activeTab === "Closed" ? "" : "hidden"}`}>
                   Repaid Date
@@ -197,6 +202,7 @@ export const ShowAllLoansDetails = () => {
                       <MdContentCopy className='ml-2 text-blue-500'/>
                     </TableCell>
                     <TableCell>{loan.amount}</TableCell>
+                    <TableCell className={`${activeTab === "Closed" ? "" : "hidden"}`}>{loan.interestAccrued}</TableCell>
                     <TableCell 
                       onClick={() => handleCopy(loan.borrower.toString())}
                       className={`flex items-center cursor-pointer ${activeTab === "Closed" || activeTab === "Funded" ? "" : "hidden"}`}>
@@ -208,6 +214,8 @@ export const ShowAllLoansDetails = () => {
                       >{formatAddress(loan.borrower.toString())} 
                     </TableCell>
                     <TableCell>{loan.requestDate}</TableCell>
+                    <TableCell className={`${activeTab === "Funded" ? "" : "hidden"}`}>
+                      {loan.fundDate}</TableCell>
                     <TableCell>{loan.dueDate}</TableCell>
                     <TableCell className={`${activeTab === "Closed" ? "" : "hidden"}`}>
                       {loan.repayDate}

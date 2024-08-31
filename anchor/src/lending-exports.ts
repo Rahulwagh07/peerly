@@ -21,7 +21,7 @@ export function getLendingProgramId(cluster: Cluster) {
     case 'devnet':
     case 'testnet':
       // This is the program ID for the Auction program on devnet and testnet.
-      return new PublicKey('65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W');
+      return new PublicKey('BqopUsa7CqQHnRWRenvHxLH4ne8xLpPTrtHtSZxo4JJj');
     case 'mainnet-beta':
     default:
       return PeerToPeerLending_PROGRAM_ID;

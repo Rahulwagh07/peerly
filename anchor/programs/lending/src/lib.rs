@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::solana_program::system_instruction;
 use anchor_lang::solana_program::program::invoke;
 
-declare_id!("65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W");
+declare_id!("BqopUsa7CqQHnRWRenvHxLH4ne8xLpPTrtHtSZxo4JJj");
 
 #[program]
 pub mod peer_to_peer_lending {
@@ -32,6 +32,7 @@ pub mod peer_to_peer_lending {
             request_date: clock.unix_timestamp,
             fund_date: None,
             repay_date: None,
+            interest_accrued: None,
         };
 
         user_account.loans.push(loan);
@@ -85,10 +86,16 @@ pub mod peer_to_peer_lending {
         require!(loan.status == LoanStatus::Funded, ErrorCode::LoanNotRepayable);
         require!(loan.borrower == *ctx.accounts.borrower.key, ErrorCode::UnauthorizedBorrower);
 
+        let time_elapsed = clock.unix_timestamp - loan.fund_date.unwrap();
+        let time_in_years = time_elapsed as f64 / (365.0 * 24.0 * 60.0 * 60.0);  
+        let interest_rate = 0.30;  
+        let interest = (loan.amount as f64 * interest_rate * time_in_years) as u64;
+        let total_repayment = loan.amount + interest;
+
         let ix = system_instruction::transfer(
             &ctx.accounts.borrower.key,
             &ctx.accounts.lender.key,
-            loan.amount,
+            total_repayment,
         );
 
         invoke(
@@ -102,6 +109,7 @@ pub mod peer_to_peer_lending {
 
         loan.status = LoanStatus::Closed;
         loan.repay_date = Some(clock.unix_timestamp);
+        loan.interest_accrued = Some(interest);
 
         Ok(())
     }
@@ -156,6 +164,7 @@ pub mod peer_to_peer_lending {
       pub request_date: i64,
       pub fund_date: Option<i64>,
       pub repay_date: Option<i64>,
+      pub interest_accrued: Option<u64>,
   }
 
   #[derive(Accounts)]
@@ -166,7 +175,7 @@ pub mod peer_to_peer_lending {
       #[account(
           init_if_needed,
           payer = borrower,
-          space = 8 + 1 + 4 + (32 + 32 + 8 + 200 + 8 + 1 + 8 + 9 + 9) * 3,
+          space = 8 + 1 + 4 + (32 + 32 + 8 + 200 + 8 + 1 + 8 + 9 + 9 + 9) * 3,
           seeds = [b"rahul", borrower.key().as_ref()],
           bump
       )]
@@ -191,7 +200,7 @@ pub mod peer_to_peer_lending {
       #[account(
           init_if_needed,
           payer = lender,
-          space = 8 + 1 + 4 + (32 + 32 + 8 + 200 + 8 + 1 + 8 + 9 + 9) * 3,
+          space = 8 + 1 + 4 + (32 + 32 + 8 + 200 + 8 + 1 + 8 + 9 + 9 + 9) * 3,
           seeds = [b"rahul", lender.key().as_ref()],
           bump
       )]

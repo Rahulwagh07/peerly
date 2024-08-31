@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/peer_to_peer_lending.json`.
  */
 export type PeerToPeerLending = {
-  "address": "65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W",
+  "address": "BqopUsa7CqQHnRWRenvHxLH4ne8xLpPTrtHtSZxo4JJj",
   "metadata": {
     "name": "peerToPeerLending",
     "version": "0.1.0",
@@ -381,6 +381,12 @@ export type PeerToPeerLending = {
             "name": "repayDate",
             "type": {
               "option": "i64"
+            }
+          },
+          {
+            "name": "interestAccrued",
+            "type": {
+              "option": "u64"
             }
           }
         ]

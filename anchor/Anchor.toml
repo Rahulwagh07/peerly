@@ -5,10 +5,10 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-lending = "65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W"
+lending = "BqopUsa7CqQHnRWRenvHxLH4ne8xLpPTrtHtSZxo4JJj"
 
 [programs.devnet]
-lending = "65qW8g3QDkEyQzSM4cSVSFkdu1tjPCAg8kjh3Z23ND2W"
+lending = "BqopUsa7CqQHnRWRenvHxLH4ne8xLpPTrtHtSZxo4JJj"
 
 [registry]
 url = "https://api.apr.dev"

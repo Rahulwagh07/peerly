@@ -97,8 +97,16 @@ const RepayLoanModal: React.FC<RepayLoanModalProps> = ({ loan, loanIndex, onClos
           <div className="flex flex-col items-start gap-1">
             <Label>Lender Account</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              <span className="hidden sm:block">{loan.borrower.toString()}</span>
-              <span className="block sm:hidden">{formatAddress(loan.borrower.toString())}</span>
+              {
+              formatStatus(loan.status) === "Requested" 
+                ? <span>Loan is Not Funded Yet</span> 
+                :(
+                  <>
+                    <span className="hidden sm:block">{loan.lender.toString()}</span>
+                    <span className="block sm:hidden">{formatAddress(loan.lender.toString())}</span>
+                  </>
+                ) 
+              }
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">

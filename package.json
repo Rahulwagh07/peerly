@@ -40,6 +40,7 @@
     "daisyui": "4.12.10",
     "date-fns": "^3.6.0",
     "encoding": "0.1.13",
+    "framer-motion": "^11.3.31",
     "jotai": "2.9.3",
     "lucide-react": "^0.436.0",
     "next": "14.2.6",

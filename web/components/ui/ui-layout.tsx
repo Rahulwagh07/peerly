@@ -22,7 +22,7 @@ export function UiLayout({
     <div className="">
      <div className='flex items-center justify-center'>
      <Card  className="flex z-50 items-center justify-between sm:justify-center align-baseline px-8 gap-2 sm:gap-16 shadow-lg 
-     dark:bg-gray-900 border-b mb-4 py-1.5 mt-4 rounded-2xl w-11/12 h-16">
+       border-b mb-4 py-1.5 mt-4 rounded-2xl w-11/12 h-16">
       <Link href="/">
         Home
       </Link>

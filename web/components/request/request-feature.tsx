@@ -27,6 +27,7 @@ import { useRouter } from 'next/navigation';
 import { AccountType } from '@/lib/types';
 import { handleCustomError } from '@/lib/utils';
 import { Terms } from '../common/Terms';
+import MotionAnimation from '../common/MotionAnimation';
 
 export default function RequestLoanFeature() {
   const { connection } = useConnection();
@@ -157,61 +158,79 @@ export default function RequestLoanFeature() {
         <div className="bg-gradient-to-r from-background/50 to-background blur-3xl w-[25rem] h-[44rem] rotate-[-60deg] transform -translate-x-[10rem]" />
         <div className="bg-gradient-to-tl blur-3xl w-[90rem] h-[50rem] rounded-full origin-top-left -rotate-12 -translate-x-[15rem] from-primary-foreground via-primary-foreground to-background" />
       </div>
-      <Card className='p-4 relative mt-20 lg:px-16'>
+      <div className='p-4 relative mt-[4.5rem] lg:px-16'>
         <Link href="/" className='hidden' >
          <IoClose className='absolute text-2xl top-5 right-5 text-red-500'/>
          </Link>
-      <CardHeader>
-        <CardTitle>Request a Loan!</CardTitle>
-        <CardDescription>
-          Submit your loan application and connect directly with Lenders on <br/>our secure, blockchain-powered platform.
-        </CardDescription>
-      </CardHeader>
+      <MotionAnimation delay={0.1}>
+        <CardHeader>
+          <CardTitle>Request a Loan!</CardTitle>
+          <CardDescription>
+            Submit your loan application and connect directly with Lenders on <br/>our secure, blockchain-powered platform.
+          </CardDescription>
+        </CardHeader>
+      </MotionAnimation>
       <CardContent>
         <form onSubmit={handleSubmit}>
           <div className="grid w-full items-center gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="accountAddress">Account Address</Label>
-              <Input id="accountAddress" value={publicKey?.toBase58() || ""} readOnly />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="amount">Loan Amount</Label>
-              <Input
-                id="amount"
-                placeholder="Enter Loan Amount (in SOL)"
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="mortgageCID">Add Mortgage</Label>
-              <Input
-                id="mortgageCID"
-                placeholder="Enter Mortgage CID"
-                value={mortgageCID}
-                onChange={(e) => setMortgageCID(e.target.value)}
-                required
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5 w-full">
-              <Label htmlFor="dueDate">Pick a Due Date</Label>
-              <DatePicker onDateChange={setSelectedDate} />
-            </div>
-            <div className="flex flex-col space-y-1.5 w-full">
-              <Label>Loan Terms</Label>
-              <Terms isChecked={isChecked}
-                setIsChecked={setIsChecked}
-                text1="I agree that"
-                text2="interest rate will be applied."
-              />
-            </div>
-            <Button type="submit" disabled={!isChecked}>{loading ? "Submitting.." : "Request Loan"}</Button>
-          </div>
+            <MotionAnimation delay={0.2}>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="accountAddress">Account Address</Label>
+                <Input id="accountAddress" value={publicKey?.toBase58() || ""} readOnly />
+              </div>
+            </MotionAnimation>
+            <MotionAnimation delay={0.3}>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="amount">Loan Amount</Label>
+                <Input
+                  id="amount"
+                  placeholder="Enter Loan Amount (in SOL)"
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  required
+                />
+              </div>
+            </MotionAnimation>
+            <MotionAnimation delay={0.4}>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="mortgageCID">Add Mortgage</Label>
+                <Input
+                  id="mortgageCID"
+                  placeholder="Enter Mortgage CID"
+                  value={mortgageCID}
+                  onChange={(e) => setMortgageCID(e.target.value)}
+                  required
+                />
+              </div>
+            </MotionAnimation>
+            <MotionAnimation delay={0.5}>
+              <div className="flex flex-col space-y-1.5 w-full">
+                <Label htmlFor="dueDate">Pick a Due Date</Label>
+                <DatePicker onDateChange={setSelectedDate} />
+              </div>
+            </MotionAnimation>
+            <MotionAnimation delay={0.6}>
+              <div className="flex flex-col space-y-1.5 w-full">
+                <Label>Loan Terms</Label>
+                <Terms isChecked={isChecked}
+                  setIsChecked={setIsChecked}
+                  text1="I agree that"
+                  text2="interest rate will be applied."
+                />
+              </div>
+            </MotionAnimation>
+            <MotionAnimation delay={0.7}>
+            <Button 
+              type="submit" 
+              disabled={!isChecked || loading}
+              className="w-full"
+              >{loading ? "Submitting.." : "Request Loan"}</Button> 
+            </MotionAnimation>
+           </div>
         </form>
       </CardContent>
-    </Card>
+    </div>
     </div>
   ) : (
      <NotConnected/>

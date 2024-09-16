@@ -16,7 +16,7 @@ export function GithubBorder() {
 				<FaGithub className="h-4 w-4" />
 				<div className="flex items-center justify-center">
 					{" "}
-					Start us on Github{" "}
+					Star us on Github{" "}
 					<GoArrowUpRight
 						className="group-hover/anchor:opacity-90 items-center mt-1 w-[18px] h-[18px] opacity-0 transition"
 						stroke="#ffffff"

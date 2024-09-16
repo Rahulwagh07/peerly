@@ -209,9 +209,9 @@ export const ShowAllLoansDetails = () => {
                       {formatAddress(loan.lender.toString())}
                     </TableCell>
                     <TableCell 
-                      onClick={() => handleCopy(loan.borrower.toString())}
+                      onClick={() => handleCopy(loan.mortgageCid.toString())}
                       className='cursor-pointer'
-                      >{formatAddress(loan.borrower.toString())} 
+                      >{formatAddress(loan.mortgageCid.toString())} 
                     </TableCell>
                     <TableCell>{loan.requestDate}</TableCell>
                     <TableCell className={`${activeTab === "Funded" ? "" : "hidden"}`}>

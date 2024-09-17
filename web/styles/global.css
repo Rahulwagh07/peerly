@@ -30,7 +30,7 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
-
+   
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -78,3 +78,11 @@
 .wallet-adapter-button {
   font-family: inherit !important;
 }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;  
+  overflow-x: hidden; 
+}
+ 

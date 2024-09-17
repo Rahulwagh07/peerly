@@ -33,11 +33,11 @@ export default function Hero() {
           <motion.h1
             {...baseAnimation}
             transition={{ ...baseAnimation.transition, delay: headingDelay }}
-            className="text-center  mx-auto bg-[linear-gradient(180deg,_#FFF_0%,_rgba(255,_255,_255,_0.00)_202.08%)]
-             bg-clip-text text-4xl tracking-tighter sm:text-5xl text-transparent md:text-6xl lg:text-8xl"
+            className="text-center text-blue-700  mx-auto bg-[linear-gradient(180deg,_#FFF_0%,_rgba(255,_255,_255,_0.00)_202.08%)]
+             bg-clip-text text-4xl tracking-tighter sm:text-5xl dark:text-transparent md:text-6xl lg:text-8xl"
           >
            Unlock the Future{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r to-blue-200 from-zinc-300">
+            <span className="dark:text-transparent text-blue-500 bg-clip-text bg-gradient-to-r to-blue-200 from-zinc-300">
             of Loans
             </span>{" "}
             with Peerly

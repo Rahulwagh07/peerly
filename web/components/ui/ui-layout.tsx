@@ -103,9 +103,9 @@ export function UiLayout({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="absolute top-24 left-0 right-0 bottom-0 bg-background   p-2 shadow-lg md:hidden"
+                className="absolute top-24 left-0 right-0 bottom-0 bg-background pt-4  p-2 shadow-lg md:hidden"
               >
-                <div className="flex flex-col items-center justify-center h-[60%] py-4 space-y-4 gap-8">
+                <div className="flex flex-col items-center justify-center py-10 space-y-4 gap-6">
                   {links.map(({ label, path }) => (
                     <Link
                       key={path}

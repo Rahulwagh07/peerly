@@ -1,16 +1,16 @@
-import "@/styles/global.css"
+import '@/styles/global.css';
 import { UiLayout } from '@/components/ui/ui-layout';
 import { ClusterProvider } from '@/components/cluster/cluster-data-access';
 import { SolanaProvider } from '@/components/solana/solana-provider';
 import { ReactQueryProvider } from './react-query-provider';
-import { Inter as FontSans } from "next/font/google";
+import { Inter as FontSans } from 'next/font/google';
 import { cn } from '@peerly/ui-components';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-})
+  subsets: ['latin'],
+  variable: '--font-sans',
+});
 export const metadata = {
   title: 'Peerly',
   description: 'Decentralized peer to peer lending network',
@@ -29,16 +29,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={cn(
-          "font-sans",
-          fontSans.variable
-        )}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
+      <body className={cn('font-sans', fontSans.variable)}>
+        <ThemeProvider attribute="class" defaultTheme='light' enableSystem disableTransitionOnChange>
           <ReactQueryProvider>
             <ClusterProvider>
               <SolanaProvider>
@@ -46,7 +38,6 @@ export default function RootLayout({
               </SolanaProvider>
             </ClusterProvider>
           </ReactQueryProvider>
-        
         </ThemeProvider>
       </body>
     </html>

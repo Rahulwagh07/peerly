@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import React, { useState } from 'react';
 import {
@@ -7,14 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter, Button, Label
+  DialogFooter,
+  Button,
+  Label,
 } from '@peerly/ui-components';
- 
+
 import { useAnchorProvider } from '../solana/solana-provider';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getLendingProgram, getLendingProgramId } from '@peerly/anchor';
 import { Cluster, PublicKey } from '@solana/web3.js';
-import * as anchor from "@coral-xyz/anchor";
+import * as anchor from '@coral-xyz/anchor';
 import toast from 'react-hot-toast';
 import { useCluster } from '../cluster/cluster-data-access';
 import { Loan } from '@/lib/types';
@@ -22,7 +24,6 @@ import { useRouter } from 'next/navigation';
 import { formatAddress, handleCustomError } from '@/lib/utils';
 import { useTransactionToast } from '../ui/ui-layout';
 import { Terms } from '../common/Terms';
- 
 
 interface FundLoanModalProps {
   loan: Loan;
@@ -30,7 +31,11 @@ interface FundLoanModalProps {
   onClose: () => void;
 }
 
-const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose }) => {
+const FundLoanModal: React.FC<FundLoanModalProps> = ({
+  loan,
+  loanIndex,
+  onClose,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const provider = useAnchorProvider();
   const { publicKey, connected } = useWallet();
@@ -45,28 +50,31 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
     setIsLoading(true);
     try {
       if (!connected || !publicKey) {
-        throw new Error('Wallet not connected.');
+        toast.error('Wallet not connected! Connect to a web3 wallet.');
+        onClose();
+        return;
       }
-  
+
       if (!provider) {
         throw new Error('Provider not available.');
       }
-  
+
       if (!program) {
         throw new Error('Program not initialized.');
       }
 
-      const [borrowerAccountPDA] = await PublicKey.findProgramAddress(
+      const [borrowerAccountPDA] = PublicKey.findProgramAddressSync(
         [Buffer.from('rahul'), new PublicKey(loan.borrower).toBuffer()],
-        programId
+        programId,
       );
 
       const [lenderAccountPDA] = await PublicKey.findProgramAddress(
         [Buffer.from('rahul'), publicKey.toBuffer()],
-        programId
+        programId,
       );
 
-      const tx = await program.methods.fundLoan(loanIndex)
+      const tx = await program.methods
+        .fundLoan(loanIndex)
         .accounts({
           lender: publicKey,
           borrower: new PublicKey(loan.borrower),
@@ -76,17 +84,19 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
         } as any)
         .rpc();
 
-        toast.success('Loan funded successfully');
-        transactionToast(tx);
-        router.push(`/account/${publicKey}`);
-        
+      toast.success('Loan funded successfully');
+      transactionToast(tx);
+      router.push(`/account/${publicKey}`);
     } catch (error: any) {
-        setIsLoading(false);
-        onClose();
-        console.error('Error funding loan:', error);
-        handleCustomError({error, customError: "Failed to Fund loan. Make sure you have some devent sol"});
+      setIsLoading(false);
+      onClose();
+      console.error('Error funding loan:', error);
+      handleCustomError({
+        error,
+        customError: 'Failed to Fund loan. Make sure you have some devent sol',
+      });
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -103,8 +113,12 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
           <div className="flex flex-col items-start gap-1">
             <Label>Borrower Account</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              <span className="hidden sm:block">{loan.borrower.toString()}</span>
-              <span className="block sm:hidden">{formatAddress(loan.borrower.toString())}</span>
+              <span className="hidden sm:block">
+                {loan.borrower.toString()}
+              </span>
+              <span className="block sm:hidden">
+                {formatAddress(loan.borrower.toString())}
+              </span>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
@@ -122,8 +136,12 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
           <div className="flex flex-col items-start gap-1">
             <Label>Mortgage</Label>
             <div className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm">
-              <span className="hidden sm:block">{loan.mortgageCid.toString()}</span>
-              <span className="block sm:hidden">{formatAddress(loan.mortgageCid.toString())}</span>
+              <span className="hidden sm:block">
+                {loan.mortgageCid.toString()}
+              </span>
+              <span className="block sm:hidden">
+                {formatAddress(loan.mortgageCid.toString())}
+              </span>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
@@ -132,9 +150,12 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
               {loan.status}
             </div>
           </div>
-          <div className={`flex flex-col space-y-1.5 w-full ${loan.status === "Requested" ? "" : "hidden"}`}>
+          <div
+            className={`flex flex-col space-y-1.5 w-full ${loan.status === 'Requested' ? '' : 'hidden'}`}
+          >
             <Label>Loan Terms</Label>
-            <Terms isChecked={isChecked}
+            <Terms
+              isChecked={isChecked}
               setIsChecked={setIsChecked}
               text1="I agree to give loan at"
               text2="interest rate."
@@ -143,10 +164,20 @@ const FundLoanModal: React.FC<FundLoanModalProps> =  ({ loan, loanIndex, onClose
         </div>
         <DialogFooter>
           <div className="flex justify-end px-4">
-            <Button onClick={onClose} variant="outline">Close</Button>
-            <Button onClick={fundLoan} className="ml-2" 
-              disabled={loan.status === "Closed" || loan.status === "Funded" || isLoading || !isChecked}>
-              {isLoading ? "Submitting" : "Give Loan"}
+            <Button onClick={onClose} variant="outline">
+              Close
+            </Button>
+            <Button
+              onClick={fundLoan}
+              className="ml-2"
+              disabled={
+                loan.status === 'Closed' ||
+                loan.status === 'Funded' ||
+                isLoading ||
+                !isChecked
+              }
+            >
+              {isLoading ? 'Submitting' : 'Give Loan'}
             </Button>
           </div>
         </DialogFooter>

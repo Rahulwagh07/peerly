@@ -152,7 +152,7 @@ export default function ShowAllLoansDetails() {
   if (error) return <CustomError error={error} address={publicKey} />;
 
   return (
-    <div className="mx-2 sm:mx-auto w-11/12 relative overflow-hidden py-16 -mt-24 sm:-mt-24 lg:py-12">
+    <div className="mx-2 sm:mx-auto w-11/12 relative max-h-screen overflow-hidden py-16 -mt-24 sm:-mt-24 lg:py-12">
       <div
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
@@ -218,10 +218,10 @@ export default function ShowAllLoansDetails() {
             </nav>
           </div>
         </div>
-        <CardContent className="px-0 md:ml-10 xl:ml-auto lg:px-4  max-h-[calc(100vh-8rem)] overflow-y-auto hide-scrollbar">
+        <CardContent className="px-0 md:ml-10 xl:ml-auto lg:px-4 max-h-[calc(100vh-6rem)]  md:max-h-[calc(100vh-8rem)] overflow-y-auto hide-scrollbar">
           <Table className="mb-16 md:mb-0">
             <TableHeader
-              className={`${isExpanded ? '' : 'sticky top-0'}' xl:sticky xl:top-0 bg-gray-100 dark:bg-slate-800 z-2'`}
+              className={`${isExpanded ? 'xl:sticky xl:top-0 bg-gray-100 dark:bg-slate-800 z-2' : 'sticky top-0 bg-gray-100 dark:bg-slate-800  z-2'}`}
             >
               <TableRow>
                 <TableHead>Borrower</TableHead>
